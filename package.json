@@ -1,5 +1,5 @@
 {
-  "name": "ageteller",
+  "name": "fintech",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -17,7 +17,8 @@
     "redux": "^4.0.1",
     "redux-form": "^8.1.0",
     "redux-thunk": "^2.3.0",
-    "thunk": "0.0.1"
+    "thunk": "0.0.1",
+    "web3": "^1.0.0-beta.48"
   },
   "scripts": {
     "start": "react-scripts start",

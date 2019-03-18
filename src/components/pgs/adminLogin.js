@@ -1,6 +1,5 @@
 import React,{Component} from 'react'
 import AdminLoginForm from '../adminLoginForm'
-import { Redirect } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 import { adminLoginValidation, updateUserName, updatePass, signBtnClicked, fetchAdmins } from '../../redux/actions'
 import { connect } from 'react-redux'
@@ -20,7 +19,6 @@ class AdminLogin extends Component{
                             <img src="images/face80x80.jpg" alt="" className="img-circle" />
                             <br />
                             <br />
-                            {/* <button onClick={e=>this.test(e.target.value)}>Test</button> */}
                             <AdminLoginForm onSubmit={ this.onSubmit }/>
                         </div>
                     </div>
@@ -51,19 +49,18 @@ class AdminLogin extends Component{
     }
     
     onSubmit = values=>{
-        // console.log(values)
 
         if(!(values.username || values.password)){
             console.log('No data entered');
         }else{
-            this.props.admins.map(a=>{
-                if(a.username === values.username && a.password === values.password){
-                    this.props.history.push('/adminPayment')
-                    console.log('logged in'); 
+            this.props.adminLoginValidation(values)
+            setTimeout(()=>{
+                if(this.props.adminDetails){
+                    this.props.history.push('/adminPayment');
                 }else{
-                    console.log('Failed to login')
                 }
-            })
+            },2000)
+            
         }
     }
 }

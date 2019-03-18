@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 
 
 const AdminPayment = (props) => {
-    console.log('props orgDetails', props.viewOrgDetails)
     return (
       
       <div className="container">
@@ -74,14 +73,12 @@ const AdminPayment = (props) => {
 }
 
 const mapStateToProps = state => {
-  console.log('MapStateToProps state: ',state)
     return{
       viewOrgDetails: state.AdminUi
     }
 }
 
 const mapDispatchToProps = dispatch =>{
-  console.log('dispatch',dispatch);
   return bindActionCreators({viewOrganizationDetailsAdmin}, dispatch)
 }
 
