@@ -9,7 +9,14 @@ import {
     CANCEL_BUTTON_CLICKED,
     SIGN_BUTTON_CLICKED,
 } from "../container/ui";
-import { LOAD_ORG_DETAILS, SUBMIT_ADMIN_LOGIN, ADMIN_PASSWORD_ENTERED, ADMIN_USERNAME_ENTERED, FETCH_ADMINS } from "../container/data";
+import { 
+    LOAD_ORG_DETAILS, 
+    SUBMIT_ADMIN_LOGIN, 
+    ADMIN_PASSWORD_ENTERED, 
+    ADMIN_USERNAME_ENTERED, 
+    FETCH_ADMINS,
+    BLOCK_CHAIN_DETAILS,
+} from "../container/data";
 
 export function viewOrganizationDetailsAdmin(view) {
     let action = {
@@ -144,6 +151,15 @@ export const fetchAdmins = ()=>dispatch=>{
         type: FETCH_ADMINS,
         data
     }))
-}
+};
 
+export const blockchainData=(Web3)=>dispatch=>{
+    
+    const web3 = new Web3(Web3.givenProvider|| 'http://localhost:8545')
+    web3.eth.getAccounts()
+    .then(data=>dispatch({
+        type:BLOCK_CHAIN_DETAILS,
+        data
+    }))
+}
 
