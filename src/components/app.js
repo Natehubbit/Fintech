@@ -4,14 +4,15 @@ import NavLinks from './navLinks';
 import MainPage from './mainPg';
 import Footer from './footer';
 import Web3 from 'web3'
-import { blockchainData } from '../redux/actions'
+import { blockchainData,} from '../redux/actions'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 class App extends Component {
 	constructor(props){
 		super(props)
-		this.props.blockchainData(Web3)
+		this.props.blockchainData()
+		console.log('ContractJson: ',this.props.contract)
 	}
 	
 
@@ -30,12 +31,13 @@ class App extends Component {
 
 const mapStateToProps = state => {
     return{
-      blockchainInfo: state.BlockchInfo
+			blockchainInfo: state.BlockchInfo,
+			contract: state.ContractJSON,
     }
 }
 
 const mapDispatchToProps = dispatch =>{
-  return bindActionCreators({blockchainData}, dispatch)
+  return bindActionCreators({blockchainData,}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -13,8 +13,10 @@ import AdminPassword from './data/adminPasswordReducer'
 import FetchAdmins from './data/fetchAdminsReducer'
 //Forms
 import { reducer as formReducer } from 'redux-form'
-//Blockchain
+//Web3 provider info
 import BlockchainInfo from './data/blockchainReducer'
+//Contract json
+import ContractJSON from './data/contractReducer'
 
 
 const RootReducer = combineReducers({
@@ -31,6 +33,7 @@ const RootReducer = combineReducers({
     form:formReducer,
     FetchAdmins,
     BlockchainInfo,
+    ContractJSON,
 })
 
 export default RootReducer;

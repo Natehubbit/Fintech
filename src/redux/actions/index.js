@@ -16,7 +16,12 @@ import {
     ADMIN_USERNAME_ENTERED, 
     FETCH_ADMINS,
     BLOCK_CHAIN_DETAILS,
+    // CONTRACT_JSON
 } from "../container/data";
+import Web3 from 'web3'
+
+
+import TokenContract from '../../ledger/build/contracts/Token.json'
 
 export function viewOrganizationDetailsAdmin(view) {
     let action = {
@@ -153,13 +158,8 @@ export const fetchAdmins = ()=>dispatch=>{
     }))
 };
 
-export const blockchainData=(Web3)=>dispatch=>{
+export const blockchainData= dispatch=>{
     
-    const web3 = new Web3(Web3.givenProvider|| 'http://localhost:8545')
-    web3.eth.getAccounts()
-    .then(data=>dispatch({
-        type:BLOCK_CHAIN_DETAILS,
-        data
-    }))
 }
+
 

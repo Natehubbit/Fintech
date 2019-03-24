@@ -18,6 +18,7 @@ contract Token{
     uint public no_signed=0;
     address public owner;
     uint public execs_signed = 0;
+    uint256 public contractBalance;
 
     //events
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -33,8 +34,9 @@ contract Token{
 
     constructor(uint256 _initialSupply) public {
         owner = msg.sender;
-        balanceOf[owner] = _initialSupply;
+        // balanceOf[owner] = _initialSupply;
         totalSupply = _initialSupply;
+        contractBalance = _initialSupply;
     }
     
 
@@ -64,8 +66,9 @@ contract Token{
 
     // transfer from contract address to specified address
     function transferFromContract(address _to, uint256 _value) private returns (bool success){
-        require(balanceOf[owner] >= _value);
-        balanceOf[owner] -= _value;
+
+        require(contractBalance >= _value);
+        contractBalance -= _value;
         balanceOf[_to] += _value;
         emit TransferFrom(_to,_value);
         return true; 
