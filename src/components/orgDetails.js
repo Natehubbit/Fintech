@@ -8,7 +8,7 @@ class orgDetails extends Component{
 
   componentWillMount(dispatch){
     this.props.loadOrgData()
-    console.log('component has mounted data',this.props);
+    // console.log('component has mounted data',this.props);
   }
 
   render(){

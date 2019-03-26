@@ -2,10 +2,13 @@ import React, { Component } from 'react'
 import {Col, Grid, Row, Jumbotron, Panel, Thumbnail} from 'react-bootstrap'
 import Table from '../reportsTable'
 import GraphChart from '../highchart'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
 
-export default class reports extends Component {
+class reports extends Component {
   render() {
+    console.log('Reports Page props: ',this.props.web3)
     return (
       <Grid>
         <Jumbotron>
@@ -74,3 +77,13 @@ export default class reports extends Component {
     )
   }
 }
+
+const mapStateToProps = state => {
+    return{
+      web3: state.InitWeb3
+    }
+}
+
+
+
+export default connect(mapStateToProps, null)(reports)

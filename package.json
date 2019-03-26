@@ -19,13 +19,12 @@
     "redux-thunk": "^2.3.0",
     "thunk": "0.0.1",
     "truffle-contract": "^4.0.10",
-    "web3": "^1.0.0-beta.48"
+    "web3": "^1.0.0-beta.37"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "proxy": "http://localhost:3000/"
+  }
 }

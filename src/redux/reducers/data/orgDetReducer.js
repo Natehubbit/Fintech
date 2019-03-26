@@ -17,7 +17,7 @@ const data = {
 export default (state = data, action) => {
     switch (action.type) {
         case LOAD_ORG_DETAILS:
-            console.log('orgDetails reducer data', action.data[0])
+            // console.log('orgDetails reducer data', action.data[0])
             return action.data[0];
         default:
             return data;

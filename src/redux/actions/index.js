@@ -15,13 +15,15 @@ import {
     ADMIN_PASSWORD_ENTERED, 
     ADMIN_USERNAME_ENTERED, 
     FETCH_ADMINS,
-    BLOCK_CHAIN_DETAILS,
+    // BLOCK_CHAIN_DETAILS,
+    INIT_WEB3,
+    INIT_TRUFFLE_CONTRACT,
     // CONTRACT_JSON
 } from "../container/data";
 import Web3 from 'web3'
+import TruffleContract from 'truffle-contract'
 
-
-import TokenContract from '../../ledger/build/contracts/Token.json'
+import ContractAbi from '../../ledger/build/contracts/Token.json'
 
 export function viewOrganizationDetailsAdmin(view) {
     let action = {
@@ -158,8 +160,28 @@ export const fetchAdmins = ()=>dispatch=>{
     }))
 };
 
-export const blockchainData= dispatch=>{
-    
+export const initWeb3 = ()=>{
+    const web3 = new Web3(Web3.givenProvider || "http://127.0.0.1:7545");
+    let action = {
+        type:INIT_WEB3,
+        data:web3
+    }
+    // console.log('Init Web3',web3)
+    return action
+}
+
+export const initTruffleContract = ()=>dispatch => {
+    let provider = new Web3.providers.HttpProvider("http://127.0.0.1:7545");
+    let TokenContract = TruffleContract(ContractAbi)
+    TokenContract.setProvider(provider);
+    TokenContract.deployed().then(i=>{
+        // console.log(i);
+        return i;
+    })
+    .then(res=>dispatch({
+        type: INIT_TRUFFLE_CONTRACT,
+        data: res,
+    }))
 }
 
 
