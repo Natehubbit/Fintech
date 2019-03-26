@@ -1,12 +1,14 @@
-import React from 'react'
+import React,{Component} from 'react'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import { bindActionCreators } from 'redux';
 import { viewOrganizationDetailsSrc } from '../../redux/actions'
 import { connect } from 'react-redux'
 
 
-const srcPayment = (props) => {
-
+class srcPayment extends Component{
+  createTransaction(){
+    
+  }
   // constructor(){
   //   super();
 
@@ -24,7 +26,7 @@ const srcPayment = (props) => {
   //   return this.state.view;
   // }
 
-  // render(){
+  render(){
     return (
       <div className="container">
         <div className="col-lg-6 col-sm-6 col-md-6">
@@ -63,7 +65,7 @@ const srcPayment = (props) => {
               transitionLeaveTimeout={300}
             >
               { 
-                !props.viewOrgDetails &&
+                !this.props.viewOrgDetails &&
                 (
                   <div>
                     <p className="org-name"><i className="fa fa-object-group "></i><input type="text" placeholder="Organisation Name"/></p>
@@ -76,16 +78,17 @@ const srcPayment = (props) => {
             </div>
             <div className="panel-footer"><button className="btn btn-success center-block">Send</button></div>
           </div>
-          <button className="btn btn-info btn-lg center-block org" onClick={()=>props.viewOrganizationDetailsSrc(props.viewOrgDetails)} style={{width:'100%'}}>Pay to Organisation</button>
+          <button className="btn btn-info btn-lg center-block org" onClick={()=>this.props.viewOrganizationDetailsSrc(this.props.viewOrgDetails)} style={{width:'100%'}}>Pay to Organisation</button>
         </div>
       </div>
     )
   }
-// }
+}
 
 const mapStateToProps = state=>{
   return {
-    viewOrgDetails: state.SrcUi
+    viewOrgDetails: state.SrcUi,
+    web3: state.InitWeb3,
   }
 }
 

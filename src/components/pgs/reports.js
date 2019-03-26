@@ -7,6 +7,11 @@ import { connect } from 'react-redux'
 
 
 class reports extends Component {
+
+  signTransaction(){
+
+  }
+
   render() {
     console.log('Reports Page props: ',this.props.web3)
     return (
@@ -78,12 +83,13 @@ class reports extends Component {
   }
 }
 
+
+
 const mapStateToProps = state => {
     return{
       web3: state.InitWeb3
     }
 }
-
 
 
 export default connect(mapStateToProps, null)(reports)

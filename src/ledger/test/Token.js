@@ -30,7 +30,7 @@ contract('Token', accounts=>{
         })
     })
 
-    it('Assigns Signaturies and performs transaction', ()=>{
+    it('Assigns Signaturies and adds signaturies', ()=>{
         return Token.deployed().then(a=>{
             instance = a;
             return instance.assignSignaturies(accounts[0],accounts[1],accounts[2]);
@@ -41,24 +41,20 @@ contract('Token', accounts=>{
             assert.equal(receipt.logs[0].args.financeOfficer, accounts[1], 'Sets Treasurer address')
             assert.equal(receipt.logs[0].args.president, accounts[2], 'Sets Treasurer address')
             return instance.addSignatory([accounts[3]]);
-        }).then(sign=>{
-            instance.signTransaction(accounts[0]);
-            instance.signTransaction(accounts[1]);
-            instance.signTransaction(accounts[2]);
-            instance.signTransaction(accounts[3]);
+        })
+    })
+    
+    it('Creates signs and approves Transactions ',()=>{
+        //Creating a transaction
+        return Token.deployed().then(i=>{
+            instance = i
+            instance.createTransaction();
             return instance.no_signaturies()
-        }).then(no_signaturies=>{
-            console.log('SIGNATURIES',no_signaturies)
-            return instance.no_signed();
-        }).then(no_signed=>{
-            
-            console.log('SIGNEES',no_signed)
-            return instance.approve(instance.address,accounts[2], 1000);
-        }).then(receipt=>{
-            assert.equal(receipt.logs.length,2, 'Triggers approve event')
-            return receipt.logs;
-        }).then(receipt=>{
-            console.log(receipt);
+        }).then(a=>{
+            instance.signTransaction(accounts[0],0,accounts[1])
+            instance.signTransaction(accounts[0],0,accounts[2])
+            instance.signTransaction(accounts[0],0,accounts[3])
+            return instance.approve(instance.address,accounts[2],999,0,accounts[0])
         })
     })
 
