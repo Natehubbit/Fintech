@@ -14,6 +14,9 @@ contract Token{
         uint no_signed;
         address [] signed;
         address executioner;
+        string purpose;
+        uint256 amount;
+        address to;
     }
 
     string public name = "UMaTCoin";
@@ -33,9 +36,10 @@ contract Token{
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
     event SignaturiesCreated(address treasurer,address financeOfficer, address president);
     event AddSignaturies(address[] signaturies);
-    event ApproveTransaction(address _contractAddress, address _receipient, uint256 _value);
+    event ApproveTransaction(address _contractAddress, uint id, uint no_signed, address executioner);
     event TransferFrom(address _to, uint256 _value);
     event Data(bool a);
+    event TransactionDet(uint id, uint no_signed, address signed, address executioner);
     
     mapping(address => uint256) public balanceOf;
     mapping(address => signaturies) public sign;
@@ -80,30 +84,35 @@ contract Token{
         require(contractBalance >= _value);
         contractBalance -= _value;
         balanceOf[_to] += _value;
-        emit TransferFrom(_to,_value);
+        // emit TransferFrom(_to,_value);
         return true; 
     }
     
-    function createTransaction() public signersOnly returns(bool success){
-        // trans = transactions(index+1,1,[msg.sender],msg.sender);
+    function createTransaction(string memory purpose, uint256 amount, address to) public signersOnly returns(bool success){
+        trans = transactions(index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000);
         trans.id = index+1;
         trans.no_signed=1;
         trans.signed.push(msg.sender);
         trans.executioner = msg.sender;
+        trans.purpose = purpose;
+        trans.amount = amount;
+        trans.to = to;
         sign[msg.sender].transaction.push(trans);
+        emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
         return true;
     }
 
-    function signTransaction(address executioner, uint id,address a) public signersOnly returns (bool success){
-        sign[executioner].transaction[id].signed.push(a);
+    function signTransaction(address executioner, uint id,address signer) public signersOnly returns (bool success){
+        sign[executioner].transaction[id].signed.push(signer);
         ++sign[executioner].transaction[id].no_signed;
         return true;
     }
 
-    function approve (address _contractAddress, address _receipient, uint256 _value, uint transId, address executioner) public signersOnly returns (bool success){
+    function approve (address _contractAddress, uint transId, address executioner) public signersOnly returns (bool success){
         require(sign[executioner].transaction[transId].no_signed == no_signaturies);
-        transferFromContract(_receipient, _value);
-        emit ApproveTransaction(_contractAddress, _receipient, _value);
+        transferFromContract(sign[executioner].transaction[transId].to, sign[executioner].transaction[transId].amount);
+        emit ApproveTransaction(_contractAddress, transId, sign[executioner].transaction[transId].no_signed, executioner);
+        // emit TransferDet(transId, sign[executioner].transaction[transId].no_signed, executioner)
         return false;
     }
 

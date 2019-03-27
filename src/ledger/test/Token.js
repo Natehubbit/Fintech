@@ -48,13 +48,17 @@ contract('Token', accounts=>{
         //Creating a transaction
         return Token.deployed().then(i=>{
             instance = i
-            instance.createTransaction();
-            return instance.no_signaturies()
+            
+            return instance.createTransaction('Chop', 100, accounts[4]);
         }).then(a=>{
+            
             instance.signTransaction(accounts[0],0,accounts[1])
             instance.signTransaction(accounts[0],0,accounts[2])
             instance.signTransaction(accounts[0],0,accounts[3])
-            return instance.approve(instance.address,accounts[2],999,0,accounts[0])
+            // console.log('gfdgd ',a.logs[0].args.no_signed)
+            return instance.approve(accounts[0],0,accounts[0])
+        }).then(a=>{
+            console.log(a.logs[0].args.no_signed);
         })
     })
 
