@@ -1,3 +1,10 @@
+const signaturies = {
+    treasurer:'0x37b806cF4f6eFFF4f452De0B4042340eC13aBDF7',
+    financeOfficer: '0x93AE41b57887f9B3abd58fdaFF80C6fc36E2Ffb5',
+    president: '0x6825539c4A7CE4F05Af3Be9959d6715F5C0A51CC',
+
+}
+
 const Token = artifacts.require("./Token.sol");
 
 contract('Token', accounts=>{
@@ -48,19 +55,61 @@ contract('Token', accounts=>{
         //Creating a transaction
         return Token.deployed().then(i=>{
             instance = i
-            
-            return instance.createTransaction('Chop', 100, accounts[4]);
+            instance.createTransaction('Wedding', 50, accounts[0]);
+            console.log(1)
+            return instance.createTransaction('Chop', 100, accounts[0]);
         }).then(a=>{
-            
-            instance.signTransaction(accounts[0],0,accounts[1])
-            instance.signTransaction(accounts[0],0,accounts[2])
-            instance.signTransaction(accounts[0],0,accounts[3])
-            // console.log('gfdgd ',a.logs[0].args.no_signed)
-            return instance.approve(accounts[0],0,accounts[0])
-        }).then(a=>{
-            console.log(a.logs[0].args.no_signed);
+            console.log(2)
+            return instance.saveReceipt(a.tx)
         })
-    })
+        .then(a=>{
+            console.log(3)
+        //     // console.log(a.logs[0].args.receipts)
+        //     instance.signTransaction(accounts[0],1,accounts[1])
+        //     instance.signTransaction(accounts[0],1,accounts[2])
+        //     instance.signTransaction(accounts[0],1,accounts[3])
+        //     return instance.approve(accounts[0],1,accounts[0])
+            return instance.getPendingTransaction(0,{from:accounts[0],gas:500000})
+        }).then(a=>{
+            console.log(a)
+            // console.log(a.logs[0].args.pendingTrans);
+            // let ray = new Array(a.toNumber())
+            
+            // console.log('Length: ',a.toNumber());
 
+            // for(let i=0; i<a.toNumber(); i++){
+                
+            //     return instance.pendingTransactions.call(i)
+            //     .then(a=>{
+            //         console.log('hello')
+            //         console.log('Arr value',a)
+                        
+            //     })
+            // }
+            // return ray;
+        }).then(a=>{
+            // const arr = a.map(i=>{
+                
+            // })
+            // console.log('Ray: ',a);
+            // return ins.pendingTransactions.call();
+        })
+        // .then(a=>{
+        //     console.log(4)
+        //     // console.log('approve')
+        //     // console.log('view signed Transactions: ', a.logs[0].args.sig)
+        //     // console.log('view Pending')
+        //     return instance.viewPendingTransactions()
+        // }).then(a=>{
+        //     console.log(5)
+        //     console.log('Pending Transactions: ',a.logs[0].args.pendingTrans);
+        //     return instance.viewSignedTransactions()
+        // }).then(a=>{
+        //     console.log('Signed Transactions: ',a.logs[0].args.signedTrans)
+        // })
+        // .then(a=>{
+        //     console.log(a.logs[0].args.no_signed);
+        // })
+    })
     
 })

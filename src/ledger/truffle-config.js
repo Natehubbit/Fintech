@@ -48,6 +48,13 @@ module.exports = {
     //  network_id: "*",       // Any network (default: none)
     // },
 
+    solc: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    },
+
     ganache: {
       host: "127.0.0.1",
       port: 7545,

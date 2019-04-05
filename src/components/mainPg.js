@@ -11,19 +11,19 @@ import Budget from './pgs/budget';
 import Wallet from './pgs/wallet';
 import Profile from './pgs/profile';
 
-const mainPg = () => {
+const mainPg = (props) => {
   return (
     <Switch>
-        <Route exact path="/" component={Home}/>
-        <Route path="/adminLogin" component={AdminLogin}/>
-        <Route path="/adminPayment" component={AdminPayment}/>
-        <Route path="/srcLogin" component={SrcLogin}/>
-        <Route path="/reports" component={Reports}/>
-        <Route path="/srcPayment" component={SrcPayment}/>
-        <Route path='/transactions' component={Transactions}></Route>
-        <Route path='/budget' component={Budget}></Route>
-        <Route path='/wallet' component={Wallet}></Route>
-        <Route path='/profile' component={Profile}></Route>
+        <Route exact path="/" render={() => <Home {...props} />}/>
+        <Route path="/adminLogin" render={() => <AdminLogin {...props} />}/>
+        <Route path="/adminPayment" render={() => <AdminPayment {...props} />}/>
+        <Route path="/srcLogin" render={() => <SrcLogin {...props} />}/>
+        <Route path="/reports" render={() => <Reports {...props} />}/>
+        <Route path="/srcPayment" render={() => <SrcPayment {...props} />}/>
+        <Route path='/transactions' render={() => <Transactions {...props} />}/>
+        <Route path='/budget'render={() => <Budget {...props} />}/>
+        <Route path='/wallet' render={() => <Wallet {...props} />}/>
+        <Route path='/profile' render={() => <Profile {...props} />}/>
     </Switch>
   )
 }

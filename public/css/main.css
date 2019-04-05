@@ -1173,3 +1173,13 @@ br{
 	color: #3c763d;
 }
 
+.name{
+	width: 100%;
+	display: block;
+}
+
+/* .lname{
+	width: 50%;
+	display: inline-block;
+} */
+

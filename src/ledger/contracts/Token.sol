@@ -1,12 +1,14 @@
 
 pragma solidity >=0.4.7 <0.6.0;
+// pragma experimental ABIEncoderV2;
 
 contract Token{
 
     struct signaturies{
         bool signer;
-        // uint index;
+        uint index;
         transactions [] transaction;
+        bytes [] receipts;
     }
 
     struct transactions{
@@ -17,18 +19,25 @@ contract Token{
         string purpose;
         uint256 amount;
         address to;
+        bytes txHash;
     }
+
 
     string public name = "UMaTCoin";
     string public symbol = "UMC";
     uint8 public decimals = 8;
-    uint256 public totalSupply;
+    uint public totalSupply;
     uint public no_signaturies;
     uint public no_signed=0;
     address public owner;
     uint public execs_signed = 0;
     uint256 public contractBalance;
     uint256 public index=0;
+    address [] public signaturesAuthorized;
+    transactions [] public signedTransactions;
+    transactions [] public pendingTransactions;
+    transactions [] public allTransactions;
+
     transactions trans;
 
     //events
@@ -36,19 +45,36 @@ contract Token{
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
     event SignaturiesCreated(address treasurer,address financeOfficer, address president);
     event AddSignaturies(address[] signaturies);
-    event ApproveTransaction(address _contractAddress, uint id, uint no_signed, address executioner);
+    event ApproveTransaction(address _contractAddress, uint id, uint no_signed, address executioner, address [] sig);
     event TransferFrom(address _to, uint256 _value);
     event Data(bool a);
     event TransactionDet(uint id, uint no_signed, address signed, address executioner);
+    // event ReceiptDetails(bytes [] receipts);
+    // event SignedTransactions(transactions [] signedTrans);
+    event PendingTransaction(
+        uint256 id,
+        uint no_signed,
+        address [] signed,
+        address executioner,
+        string purpose,
+        uint256 amount,
+        address to,
+        bytes txHash
+    );
     
     mapping(address => uint256) public balanceOf;
     mapping(address => signaturies) public sign;
+    // mapping(uint => transactions) public pendingTransactions;
+    // mapping(uint => transactions) public signedTransactions;
 
-    constructor(uint256 _initialSupply) public {
+    // mapping(address => bytes) public receipts;
+
+    constructor(uint256 _initialSupply, address treasurer, address financeOfficer, address president) public {
         owner = msg.sender;
         // balanceOf[owner] = _initialSupply;
         totalSupply = _initialSupply;
         contractBalance = _initialSupply;
+        assignSignaturies(treasurer,financeOfficer,president);
     }
     
 
@@ -57,6 +83,7 @@ contract Token{
         require(sign[msg.sender].signer==true);
         _;    
     }
+
 
     modifier signedOnly(uint transId){
         require(sign[msg.sender].transaction[transId].no_signed == no_signaturies);
@@ -73,7 +100,6 @@ contract Token{
         balanceOf[msg.sender]-=_value;
         //Transfer amount
         balanceOf[_to] += _value;
-
         emit Transfer(msg.sender,_to,_value);
         return true;
     }
@@ -89,8 +115,8 @@ contract Token{
     }
     
     function createTransaction(string memory purpose, uint256 amount, address to) public signersOnly returns(bool success){
-        trans = transactions(index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000);
-        trans.id = index+1;
+        // trans = transactions(sign[msg.sender].index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000,"");
+        trans.id = sign[msg.sender].index+1;
         trans.no_signed=1;
         trans.signed.push(msg.sender);
         trans.executioner = msg.sender;
@@ -98,20 +124,31 @@ contract Token{
         trans.amount = amount;
         trans.to = to;
         sign[msg.sender].transaction.push(trans);
+        ++sign[msg.sender].index;
+        pendingTransactions.push(trans);
         emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
         return true;
     }
 
-    function signTransaction(address executioner, uint id,address signer) public signersOnly returns (bool success){
-        sign[executioner].transaction[id].signed.push(signer);
+    function signTransaction(address executioner, uint id) public signersOnly returns (bool success){
+        
+        for(uint i=0; i<4; i++){
+            require(sign[executioner].transaction[id].signed[i] != msg.sender );
+        }
+
+        sign[executioner].transaction[id].signed.push(msg.sender);
         ++sign[executioner].transaction[id].no_signed;
+        if(sign[executioner].transaction[id].no_signed == 3){
+            signedTransactions.push(sign[executioner].transaction[id]);
+            delete pendingTransactions[id];
+        }
         return true;
     }
 
     function approve (address _contractAddress, uint transId, address executioner) public signersOnly returns (bool success){
         require(sign[executioner].transaction[transId].no_signed == no_signaturies);
         transferFromContract(sign[executioner].transaction[transId].to, sign[executioner].transaction[transId].amount);
-        emit ApproveTransaction(_contractAddress, transId, sign[executioner].transaction[transId].no_signed, executioner);
+        emit ApproveTransaction(_contractAddress, transId, sign[executioner].transaction[transId].no_signed, executioner,signaturesAuthorized);
         // emit TransferDet(transId, sign[executioner].transaction[transId].no_signed, executioner)
         return false;
     }
@@ -121,9 +158,16 @@ contract Token{
     // }
 
     function assignSignaturies(address treasurer, address financeOfficer, address president) public returns (bool success) {
+        // sig = signaturies(true,0, transactions(index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000,''));
         sign[treasurer].signer=true;
+        sign[treasurer].receipts=new bytes[](sign[msg.sender].index+1);
         sign[financeOfficer].signer=true;
+        sign[financeOfficer].receipts=new bytes[](sign[msg.sender].index+1);
         sign[president].signer=true;
+        sign[president].receipts=new bytes[](sign[msg.sender].index+1);
+        signaturesAuthorized.push(treasurer);
+        signaturesAuthorized.push(financeOfficer);
+        signaturesAuthorized.push(president);
         no_signaturies = 3;
         emit SignaturiesCreated(treasurer,financeOfficer, president);
         return true;
@@ -135,9 +179,46 @@ contract Token{
 
         for(uint i = 0; i < len; i++){
             sign[signers[i]];
+            sign[signers[i]].receipts=new bytes[](sign[msg.sender].index+1);
+            signaturesAuthorized.push(signers[i]);
         }
         no_signaturies += len; 
         emit AddSignaturies(signers);
+        return true;
+    }
+
+    function saveReceipt(bytes memory receipt) public returns (bool successs){
+        sign[msg.sender].receipts.push(receipt);
+        sign[msg.sender].transaction[sign[msg.sender].index - 1].txHash=receipt;
+        // emit ReceiptDetails(sign[msg.sender].receipts);
+        return true;
+    } 
+
+    function viewSignedTransactions() public returns(bool success){
+        
+        // emit SignedTransactions(signedTransactions);
+        return true;
+    }
+
+    function viewPendingTransactions() public returns(bool success){
+        
+        // emit PendingTransactions(pendingTransactions);
+        // return pendingTransactions
+        return true;
+    }
+
+    function pendingTransactionsLength() public view returns(uint length){
+        return pendingTransactions.length;
+    }
+
+    function signedTransactionsLength() public view returns(uint length){
+        return signedTransactions.length;
+    }
+
+    function getPendingTransaction(uint indexA) public returns(bool success){
+        transactions memory a = pendingTransactions[index];
+
+        emit PendingTransaction(a.id,a.no_signed,a.signed,a.executioner,a.purpose,a.amount,a.to,a.txHash);
         return true;
     }
 

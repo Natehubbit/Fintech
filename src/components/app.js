@@ -3,74 +3,69 @@ import {BrowserRouter} from 'react-router-dom';
 import NavLinks from './navLinks';
 import MainPage from './mainPg';
 import Footer from './footer';
-import { initWeb3, initTruffleContract} from '../redux/actions'
+import { initWeb3, initTruffleContract, viewPendingTransactions, } from '../redux/actions'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { signaturies } from '../redux/actions'
+import {Web3} from '../redux/actions'
+import drizzleOptions from '../ledger/drizzle/options'
+import {drizzleConnect} from 'drizzle-react'
+import { LoadingContainer,ContractData } from 'drizzle-react-components'
+import SrcPayment from './pgs/srcPayment'
+
+
 
 class App extends Component {
-	constructor(props){
-		super(props)
-		this.props.initWeb3()
-		this.props.initTruffleContract()
-		setTimeout(()=>{
-			console.log('Loading..........!!!')
-			console.log(this.props.web3)
-		},500)
-		
-		// console.log('Web3: ',this.props.web3)
+	state = { loading:true, drizzleState:null }
+
+	componentDidMount(){
+		console.log('app cdm',this.props)
+		const {drizzle} = this.props
+		// subscribe to changes in the store
+		this.unsubscribe = drizzle.store.subscribe(() => {
+
+			// every time the store updates, grab the state from drizzle
+			const drizzleState = drizzle.store.getState();
+			// console.log('app cdm drizzleState: ',drizzleState)
+			// check to see if it's ready, if so, update local component state
+			if (drizzleState.drizzleStatus.initialized) {
+				this.setState({ loading: false, drizzleState });
+			}
+			
+		});
+
 		
 	}
 
-// componentWillUpdate(){
-// 			setTimeout(()=>{
-				
-// 			},200)
-	
-// }
-
-async truffle(){
-	let contract = await this.props.truffleContract
-	console.log(contract)
-	return contract 
-}
-
-async web(){
-	let web3 = await this.props.web3
-	console.log(web3)
-	return web3
-}
-
-isEmpty(obj) {
-	for(var key in obj) {
-			if(obj.hasOwnProperty(key))
-					return false;
+	componentWillUnmount(){
+		this.unsubscribe()
 	}
-	return true;
-}
+
 
 	render() {
+		console.log('drizzleState APP: ',this.state.loading)
+		if((this.state.loading)) return 'loading';
+		console.log(this.props)
 		return (
 			<BrowserRouter>
 				<div>
 					<NavLinks/>
-					<MainPage/>
+					<MainPage drizzle={this.props.drizzle} drizzleState={this.state.drizzleState}/>
 					<Footer/>
 				</div>
 			</BrowserRouter>
 		);
 	}
+
 }
 
-const mapStateToProps = state => {
-	// console.log('state props: ',state.TruffleContract)
-    return{
-			web3: state.InitWeb3,
-			truffleContract: state.TruffleContract,
-    }
-}
+// const mapStateToProps=state=>{
+// 	console.log('CHeck lot: ',state)
+// 	return{
+// 		state
+// 	}
+// }
 
-const mapDispatchToProps = dispatch =>{
-  return bindActionCreators({initWeb3, initTruffleContract}, dispatch)
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+export default App;
