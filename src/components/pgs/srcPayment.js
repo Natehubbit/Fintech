@@ -1,33 +1,42 @@
 import React,{Component} from 'react'
 import { bindActionCreators } from 'redux';
-import { viewOrganizationDetailsSrc, viewSignedTransactions, viewPendingTransactions, createTransaction, } from '../../redux/actions'
+import { viewOrganizationDetailsSrc, viewSignedTransactions, viewPendingTransactions, createTransaction, drizzleInit, pen } from '../../redux/actions'
 import { connect } from 'react-redux'
 import SrcPaymentForm from '../srcPaymentForm'
-// import PendingSignedTransactions from '../pendingSignedTransactionInfo'
+import PendingTransactions from '../pendingTransactionInfo'
 import { ContractData, AccountData, LoadingContainer } from 'drizzle-react-components'
 import {drizzleConnect} from 'drizzle-react'
 
 
 
 class srcPayment extends Component{
-
+  state = {
+    // namedataKey:null,
+    createTransKey:null,
+    pendingLengthKey:null,
+    pendingLength:null,
+    saveReceiptKey:null,
+    newTransactions:[],
+  }
   componentDidMount() {
-    console.log('cdm props',this.props)
-    const { drizzle, drizzleState } = this.props;
-    
-    console.log(drizzle);
-    console.log(drizzleState);
+    console.log('src cdm props',this.props.drizzle)
+    const { drizzle } = this.props;
+    const Token = drizzle.contracts.Token;
+
+    let nameDataKey = Token.methods["name"].cacheCall()
+    this.setState({nameDataKey});
+
+    let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
+    this.setState({pendingLengthKey});
+
   }
 
-
-  hello = null
-  view = a =>{
-    console.log('value',a)
-  }
   render(){
     // let d = this.props.state.contracts.Token.name;
-
+    const{ Token } = this.props.drizzleState.contracts;
+    const pendingLength = Token.pendingTransactionsLength[this.state.pendingLengthKey];
     
+    if(!pendingLength)return 'Loading......';
     return (
       <div className="container">
         <div className="col-lg-6 col-sm-6 col-md-6">
@@ -39,11 +48,7 @@ class srcPayment extends Component{
                     
             <div className="panel-body pending-transactions" >
               {
-                // <LoadingContainer>
-                //   <PendingSignedTransactions/>
-                // </LoadingContainer>
-              
-              
+                <PendingTransactions lengthKey={this.state.pendingLengthKey}  newTrans = {this.state.newTransactions} length = {pendingLength.value} drizzle = {this.props.drizzle} drizzleState= {this.props.drizzleState}/>
               }
             </div>
             
@@ -58,19 +63,30 @@ class srcPayment extends Component{
           <div className="panel panel-default adminPayment">
             <SrcPaymentForm onSubmit={this.onSubmit} viewOrgDetails = {this.props.viewOrgDetails} />
           </div>
-          {/* <button className="btn btn-info btn-lg center-block org" onClick={()=>this.props.viewOrganizationDetailsSrc(this.props.viewOrgDetails)} style={{width:'100%'}}>{!this.props.viewOrgDetails? 'Pay to individual':'Pay to Organisation'}</button> */}
+          <button className="btn btn-info btn-lg center-block org" onClick={()=>this.props.viewOrganizationDetailsSrc(this.props.viewOrgDetails)} style={{width:'100%'}}>{!this.props.viewOrgDetails? 'Pay to individual':'Pay to Organisation'}</button>
         </div>
       </div>
     )
   }
   onSubmit = values=>{
-    // if(this.props.drizzleStatus.intialized)
-    console.log(this.props)
-    
-    if(values.walletAddress && !isNaN(values.amount) && values.purpose){
-      // this.props.createTransaction(values.purpose,values.amount,values.walletAddress);
-      // <ContractData contract="Token" method="createTransaction" methodArgs = {[values.purpose,values.amount,values.walletAddress]}/>
+    console.log('trnas',this.props)
+    console.log('values',values)
+    if(values.walletAddress && values.amount && values.purpose){
+      const { drizzle } = this.props;
+      const Token = drizzle.contracts.Token;
+      let createTransKey = Token.methods["createTransaction"].cacheSend(values.purpose,values.amount,values.walletAddress,{gas:500000})
+      this.setState({createTransKey})
+      setTimeout(()=>{
+        if(this.props.drizzleState.transactionStack[createTransKey]){
+          const txHash = this.props.drizzleState.transactionStack[createTransKey];
+          console.log('TransState',this.props.drizzleState)
+          console.log('TransHash',txHash)
+          let saveReceiptKey = Token.methods["saveReceipt"].cacheSend(txHash,{gas:500000})
+          this.setState({saveReceiptKey});
+        }
+      },1000)
       
+      console.log('Transaction Created')
     }
   }
 
@@ -80,7 +96,7 @@ class srcPayment extends Component{
 
 
 const mapStateToProps = state=>{
-  // console.log('signed: ',state)
+  console.log('signed: ',state)
   
   return {
     // state
@@ -94,7 +110,7 @@ const mapStateToProps = state=>{
 }
 
 const mapDispatchToProps = dispatch =>{
-  return bindActionCreators({viewOrganizationDetailsSrc,createTransaction,viewSignedTransactions, viewPendingTransactions},dispatch)
+  return bindActionCreators({viewOrganizationDetailsSrc,createTransaction,viewSignedTransactions, viewPendingTransactions, drizzleInit},dispatch)
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(srcPayment)

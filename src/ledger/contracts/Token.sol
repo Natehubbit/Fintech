@@ -8,7 +8,7 @@ contract Token{
         bool signer;
         uint index;
         transactions [] transaction;
-        bytes [] receipts;
+        string [] receipts;
     }
 
     struct transactions{
@@ -19,7 +19,7 @@ contract Token{
         string purpose;
         uint256 amount;
         address to;
-        bytes txHash;
+        string txHash;
     }
 
 
@@ -125,7 +125,7 @@ contract Token{
         trans.to = to;
         sign[msg.sender].transaction.push(trans);
         ++sign[msg.sender].index;
-        pendingTransactions.push(trans);
+        // pendingTransactions.push(trans);
         emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
         return true;
     }
@@ -160,11 +160,11 @@ contract Token{
     function assignSignaturies(address treasurer, address financeOfficer, address president) public returns (bool success) {
         // sig = signaturies(true,0, transactions(index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000,''));
         sign[treasurer].signer=true;
-        sign[treasurer].receipts=new bytes[](sign[msg.sender].index+1);
+        sign[treasurer].receipts=new string[](sign[msg.sender].index+1);
         sign[financeOfficer].signer=true;
-        sign[financeOfficer].receipts=new bytes[](sign[msg.sender].index+1);
+        sign[financeOfficer].receipts=new string[](sign[msg.sender].index+1);
         sign[president].signer=true;
-        sign[president].receipts=new bytes[](sign[msg.sender].index+1);
+        sign[president].receipts=new string[](sign[msg.sender].index+1);
         signaturesAuthorized.push(treasurer);
         signaturesAuthorized.push(financeOfficer);
         signaturesAuthorized.push(president);
@@ -179,7 +179,7 @@ contract Token{
 
         for(uint i = 0; i < len; i++){
             sign[signers[i]];
-            sign[signers[i]].receipts=new bytes[](sign[msg.sender].index+1);
+            sign[signers[i]].receipts=new string[](sign[msg.sender].index+1);
             signaturesAuthorized.push(signers[i]);
         }
         no_signaturies += len; 
@@ -187,9 +187,11 @@ contract Token{
         return true;
     }
 
-    function saveReceipt(bytes memory receipt) public returns (bool successs){
+    function saveReceipt(string memory receipt) public returns (bool successs){
         sign[msg.sender].receipts.push(receipt);
         sign[msg.sender].transaction[sign[msg.sender].index - 1].txHash=receipt;
+        trans.txHash=receipt;
+        pendingTransactions.push(trans);
         // emit ReceiptDetails(sign[msg.sender].receipts);
         return true;
     } 
@@ -215,11 +217,11 @@ contract Token{
         return signedTransactions.length;
     }
 
-    function getPendingTransaction(uint indexA) public returns(bool success){
-        transactions memory a = pendingTransactions[index];
+    // function getPendingTransaction(uint indexA) public returns(bool success){
+    //     transactions memory a = pendingTransactions[index];
 
-        emit PendingTransaction(a.id,a.no_signed,a.signed,a.executioner,a.purpose,a.amount,a.to,a.txHash);
-        return true;
-    }
+    //     emit PendingTransaction(a.id,a.no_signed,a.signed,a.executioner,a.purpose,a.amount,a.to,a.txHash);
+    //     return true;
+    // }
 
 }

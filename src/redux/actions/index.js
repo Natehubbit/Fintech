@@ -8,6 +8,8 @@ import {
     TOGGLE_PENDING_TRANSACTIONS_TAB,
     CANCEL_BUTTON_CLICKED,
     SIGN_BUTTON_CLICKED,
+    ADJUST_PENDING_PANEL,
+    PANE_CLICKED,
     // SRC_PAYMENT_SUBMIT,
 } from "../container/ui";
 import { 
@@ -23,6 +25,7 @@ import {
     INIT_WEB3,
     INIT_TRUFFLE_CONTRACT,
     SIGN_TRANSACTION,
+    INIT_DRIZZLE,
     // CONTRACT_JSON
 } from "../container/data";
 import Web3 from 'web3'
@@ -30,6 +33,8 @@ import TruffleContract from 'truffle-contract'
 
 import ContractAbi from '../../ledger/build/contracts/Token.json'
 import pendingTransactions from "../../components/pendingTransactions";
+
+import drizzle from '../../ledger/drizzle/options'
 
 export const signaturies = {
     treasurer:'0x37b806cF4f6eFFF4f452De0B4042340eC13aBDF7',
@@ -290,7 +295,6 @@ export const viewPendingTransactions = ()=>dispatch=>{
                 })
                 data[i]=trans
             }
-           
         })
         return data;
     }).then(data=>{
@@ -327,3 +331,28 @@ export const signTransactions = (a,b,c)=>dispatch=>{
     }))
 }
 
+
+export const drizzleInit=()=>dispatch=>{
+    console.log('drizzle: ',drizzle)
+    dispatch({
+        type:INIT_DRIZZLE,
+        data: drizzle
+    })
+}
+
+// export const drizzleState=()=>dispatch=>{
+//     console.log('drizzle: ',drizzle)
+//     dispatch({
+//         type:UPDATE_DRIZZSTATE,
+//         data: drizzle
+//     })
+// }
+
+export const paneClicked = (e,r)=>dispatch=>{
+    console.log(e.target.id)
+    let id = e.target.id
+    dispatch({
+        type:PANE_CLICKED,
+        view:id
+    })
+}

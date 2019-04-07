@@ -1111,7 +1111,14 @@ a:hover {
 	list-style-type: none;
 	margin-left: 50px;
 	margin-top:-5px;
+
 }
+
+.details ul:hover{
+	cursor: pointer;
+	
+}
+
 
 .dp{
 	float: left;

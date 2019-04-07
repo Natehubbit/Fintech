@@ -16,6 +16,7 @@ import ViewPendingTransactions from './data/viewPendingTransactions'
 import ViewSignedTransactions from './data/viewSignedTransactionReducer'
 import SaveReceipt from './data/saveReceipt'
 import SignTransaction from './data/signTransactionReducer'
+import PendingTransactionsPanel from './ui/pendingTransPanel'
 //Forms
 import { reducer as formReducer } from 'redux-form'
 //Web3 provider info
@@ -25,6 +26,8 @@ import ContractJSON from './data/contractReducer'
 //Truffle Contract
 import TruffleContract from './data/initTruffleContractReducer'
 import {drizzleReducers} from 'drizzle'
+import drizzle from '../reducers/data/drizzleReducer'
+import PaneClicked from './ui/paneClickedReducer'
 
 
 const RootReducer = combineReducers({
@@ -36,10 +39,13 @@ const RootReducer = combineReducers({
     Test,
     Data,
     // ...drizzleReducers,
+    // drizzle,
+    // PendingTransactionsPanel,
+    PaneClicked,
     AdminLogin,
     AdminUsername,
     AdminPassword,
-    // form:formReducer,
+    form:formReducer,
     FetchAdmins,
     TruffleContract,
     ContractJSON,
@@ -49,7 +55,7 @@ const RootReducer = combineReducers({
     ViewSignedTransactions,
     CreateTransaction,
     SignTransaction,
-
+    
 })
 
 export default RootReducer;

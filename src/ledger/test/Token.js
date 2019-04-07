@@ -55,23 +55,24 @@ contract('Token', accounts=>{
         //Creating a transaction
         return Token.deployed().then(i=>{
             instance = i
-            instance.createTransaction('Wedding', 50, accounts[0]);
+            // instance.createTransaction('Wedding', 50, accounts[0]);
             console.log(1)
             return instance.createTransaction('Chop', 100, accounts[0]);
         }).then(a=>{
             console.log(2)
-            return instance.saveReceipt(a.tx)
+            return instance.saveReceipt(a.tx,{from:accounts[0],gas:500000})
         })
         .then(a=>{
             console.log(3)
+            console.log('index: ',a.logs[0].args.rec)
         //     // console.log(a.logs[0].args.receipts)
         //     instance.signTransaction(accounts[0],1,accounts[1])
         //     instance.signTransaction(accounts[0],1,accounts[2])
         //     instance.signTransaction(accounts[0],1,accounts[3])
         //     return instance.approve(accounts[0],1,accounts[0])
-            return instance.getPendingTransaction(0,{from:accounts[0],gas:500000})
+            return instance.pendingTransactions.call(0,{from:accounts[0],gas:500000})
         }).then(a=>{
-            console.log(a)
+            console.log('h',a)
             // console.log(a.logs[0].args.pendingTrans);
             // let ray = new Array(a.toNumber())
             
@@ -87,6 +88,7 @@ contract('Token', accounts=>{
             //     })
             // }
             // return ray;
+
         }).then(a=>{
             // const arr = a.map(i=>{
                 

@@ -13,6 +13,27 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 
 class wallet extends Component{
+
+    state = {
+        // namedataKey:null,
+        createTransKey:null,
+        pendingLengthKey:null,
+        pendingLength:null,
+        saveReceiptKey:null,
+    }
+
+    componentDidMount() {
+        console.log('walet cdm props',this.props)
+        const { drizzle } = this.props;
+        const Token = drizzle.contracts.Token;
+    
+        let nameDataKey = Token.methods["name"].cacheCall()
+        this.setState({nameDataKey});
+    
+        let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
+        this.setState({pendingLengthKey});
+    
+    }
     
     details = (props)=>{
         return(
@@ -22,19 +43,29 @@ class wallet extends Component{
 
     pendingTabStyles(props){
         return {
-            background: props.toggleTab.pendingTab && 'grey',
+            background: props.toggleTab.pendingTab && '#31708f',
             color: props.toggleTab.pendingTab && 'white',
         }
     }
 
     signedTabStyles(props){
         return {
-            background: props.toggleTab.signedTab && 'grey',
+            background: props.toggleTab.signedTab && 'green',
             color: props.toggleTab.signedTab && 'white',
         }
     }
 
+    onclick(e){
+       console.log(e)
+    }
+
     render(){
+
+    const{ Token } = this.props.drizzleState.contracts;
+    const pendingLength = Token.pendingTransactionsLength[this.state.pendingLengthKey];
+    
+    if(!pendingLength)return 'Loading......';
+
         return(
             <Grid>
                 <Jumbotron>
@@ -59,7 +90,7 @@ class wallet extends Component{
                                     transitionLeaveTimeout={300}
                                 >
                                     {
-                                        !this.props.toggleTab.pendingTab? <SignedTransactions/>:<PendingTransactions/>
+                                        !this.props.toggleTab.pendingTab? <SignedTransactions/>:<PendingTransactions length = {pendingLength.value} drizzle = {this.props.drizzle} drizzleState = {this.props.drizzleState}/>
                                     }
                                 </ReactCSSTransitionGroup>
                             </Panel.Body>
@@ -76,7 +107,7 @@ class wallet extends Component{
                                         <OrgDetails/>
                                     </Row>
                                     <Row>
-                                        <TransactionDetails/>
+                                        <TransactionDetails length = {pendingLength.value} hashId={this.props.paneClicked} drizzle = {this.props.drizzle} drizzleState = {this.props.drizzleState}/>
                                     </Row>
                                 </Grid>
                             </Panel.Body>
@@ -97,14 +128,15 @@ class wallet extends Component{
 
 
 
-const mapStateToprops = state =>{
+const mapStateToProps = state =>{
     return{
         toggleTab:state.ToggleTab,
+        paneClicked:state.PaneClicked,
     }
 }
 
-const mapDispatchToprops= dispatch=>{
+const mapDispatchToProps= dispatch=>{
     return bindActionCreators({toggleSignedTab, togglePendingTab, signBtnClicked,},dispatch)
 }
 
-export default connect(mapStateToprops,mapDispatchToprops)(wallet);
+export default connect(mapStateToProps,mapDispatchToProps)(wallet);

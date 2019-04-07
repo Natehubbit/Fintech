@@ -19,7 +19,7 @@ class App extends Component {
 	state = { loading:true, drizzleState:null }
 
 	componentDidMount(){
-		console.log('app cdm',this.props)
+		
 		const {drizzle} = this.props
 		// subscribe to changes in the store
 		this.unsubscribe = drizzle.store.subscribe(() => {
@@ -45,7 +45,7 @@ class App extends Component {
 	render() {
 		console.log('drizzleState APP: ',this.state.loading)
 		if((this.state.loading)) return 'loading';
-		console.log(this.props)
+		// console.log(this.props)
 		return (
 			<BrowserRouter>
 				<div>

@@ -11,6 +11,10 @@ class orgDetails extends Component{
     // console.log('component has mounted data',this.props);
   }
 
+  componentDidUpdate(){
+    this.props.loadOrgData()
+  }
+
   render(){
     return (
       <div className='orgDetails'>
