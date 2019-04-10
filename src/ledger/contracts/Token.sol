@@ -20,6 +20,7 @@ contract Token{
         uint256 amount;
         address to;
         string txHash;
+        uint index;
     }
 
 
@@ -32,7 +33,7 @@ contract Token{
     address public owner;
     uint public execs_signed = 0;
     uint256 public contractBalance;
-    uint256 public index=0;
+    uint index = 0;
     address [] public signaturesAuthorized;
     transactions [] public signedTransactions;
     transactions [] public pendingTransactions;
@@ -64,10 +65,6 @@ contract Token{
     
     mapping(address => uint256) public balanceOf;
     mapping(address => signaturies) public sign;
-    // mapping(uint => transactions) public pendingTransactions;
-    // mapping(uint => transactions) public signedTransactions;
-
-    // mapping(address => bytes) public receipts;
 
     constructor(uint256 _initialSupply, address treasurer, address financeOfficer, address president) public {
         owner = msg.sender;
@@ -123,24 +120,31 @@ contract Token{
         trans.purpose = purpose;
         trans.amount = amount;
         trans.to = to;
+        trans.index = index;
         sign[msg.sender].transaction.push(trans);
         ++sign[msg.sender].index;
-        // pendingTransactions.push(trans);
-        emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
+        ++index;
+        pendingTransactions.push(trans);
+        // emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
         return true;
     }
 
+event Ts(uint t);
+event Ac(uint a);
     function signTransaction(address executioner, uint id) public signersOnly returns (bool success){
-        
-        for(uint i=0; i<4; i++){
+        // emit Ts(sign[executioner].transaction[id].no_signed);
+        for(uint i=0; i<sign[executioner].transaction[id].no_signed; i++){
             require(sign[executioner].transaction[id].signed[i] != msg.sender );
         }
 
-        sign[executioner].transaction[id].signed.push(msg.sender);
         ++sign[executioner].transaction[id].no_signed;
+        sign[executioner].transaction[id].signed.push(msg.sender);
+        
+        // emit Ts(sign[executioner].transaction[id].no_signed);
         if(sign[executioner].transaction[id].no_signed == 3){
+            emit Ts(sign[executioner].transaction[id].no_signed);
             signedTransactions.push(sign[executioner].transaction[id]);
-            delete pendingTransactions[id];
+            delete pendingTransactions[sign[executioner].transaction[id].index];
         }
         return true;
     }

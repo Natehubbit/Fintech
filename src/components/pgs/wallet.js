@@ -3,7 +3,7 @@ import { Jumbotron, Grid, Row, Col, Panel } from 'react-bootstrap'
 import OrgDetails from '../orgDetails'
 import TransactionDetails from '../transactionDetails'
 import { bindActionCreators } from 'redux';
-import { togglePendingTab, toggleSignedTab,signBtnClicked, } from '../../redux/actions'
+import { togglePendingTab, toggleSignedTab, changeSignBtnState } from '../../redux/actions'
 import {connect} from 'react-redux';
 import SignedTransactions from '../signedTransactions'
 import PendingTransactions from '../pendingTransactions'
@@ -20,6 +20,9 @@ class wallet extends Component{
         pendingLengthKey:null,
         pendingLength:null,
         saveReceiptKey:null,
+        signTransactionKey:null,
+        Loading:true,
+        drizzleState:null,
     }
 
     componentDidMount() {
@@ -33,6 +36,23 @@ class wallet extends Component{
         let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
         this.setState({pendingLengthKey});
     
+        console.log('Initial State ', this.props.signBtnState)
+        this.unsubscribe = drizzle.store.subscribe(() => {
+
+			// every time the store updates, grab the state from drizzle
+			const drizzleState = drizzle.store.getState();
+			// console.log('app cdm drizzleState: ',drizzleState)
+			// check to see if it's ready, if so, update local component state
+			if (drizzleState.drizzleStatus.initialized) {
+				this.setState({ loading: false, drizzleState });
+			}
+			// console.log('Drizzlllleeee',drizzleState)
+        });
+        
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe()
     }
     
     details = (props)=>{
@@ -112,8 +132,9 @@ class wallet extends Component{
                                 </Grid>
                             </Panel.Body>
                             <Panel.Footer style={{textAlign:'center'}}>
-                                <button className='btn btn-success sign' onClick={()=>this.props.loadOrgData()} title='Sign Transaction'><i className='fa fa-sign-in'></i></button>  
-                                <button className='btn btn-danger cancel' title='Terminate Transaction' ><i className='fa fa-close'></i></button>
+                                {/* {console.log('BTNsTATE',this.props.signBtnState)} */}
+                                <button className='btn btn-success sign ' disabled = {this.props.signBtnState.init } id={this.props.paneId} onClick={()=>this.signTransaction(this.props.signBtnState.exec,this.props.signBtnState.id)} title='Sign Transaction'><i className='fa fa-sign-in'></i></button>  
+                                <button className='btn btn-danger cancel' id={this.props.signBtnState.id} disabled = {this.props.signBtnState.init } title='Terminate Transaction' ><i className='fa fa-close'></i></button>
                             </Panel.Footer>
                         </Panel>
                     </Col>
@@ -124,6 +145,23 @@ class wallet extends Component{
         )
         
     }
+
+    signTransaction(a,b){
+        
+        const { drizzle } = this.props;
+        const Token = drizzle.contracts.Token;
+        
+        let signTransactionKey = Token.methods["signTransaction"].cacheSend(a,b,{gas:500000}) 
+        this.setState({signTransactionKey});
+        
+        console.log('new state: ',this.props.signBtnState)
+        // this.props.changeSignBtnState('','')
+        setTimeout(()=>{
+            console.log('TransKey', signTransactionKey)
+            
+        })
+
+    }
 }
 
 
@@ -131,12 +169,13 @@ class wallet extends Component{
 const mapStateToProps = state =>{
     return{
         toggleTab:state.ToggleTab,
-        paneClicked:state.PaneClicked,
+        paneId:state.PaneClicked,
+        signBtnState: state.SignBtnState,
     }
 }
 
 const mapDispatchToProps= dispatch=>{
-    return bindActionCreators({toggleSignedTab, togglePendingTab, signBtnClicked,},dispatch)
+    return bindActionCreators({toggleSignedTab, togglePendingTab, changeSignBtnState},dispatch)
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(wallet);

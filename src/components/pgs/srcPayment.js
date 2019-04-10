@@ -17,8 +17,10 @@ class srcPayment extends Component{
     pendingLength:null,
     saveReceiptKey:null,
     newTransactions:[],
+    drizzleState:null,
   }
   componentDidMount() {
+    
     console.log('src cdm props',this.props.drizzle)
     const { drizzle } = this.props;
     const Token = drizzle.contracts.Token;
@@ -29,6 +31,21 @@ class srcPayment extends Component{
     let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
     this.setState({pendingLengthKey});
 
+    this.unsubscribe = drizzle.store.subscribe(() => {
+
+			// every time the store updates, grab the state from drizzle
+			const drizzleState = drizzle.store.getState();
+			// check to see if it's ready, if so, update local component state
+			if (drizzleState.drizzleStatus.initialized) {
+				this.setState({ loading: false, drizzleState });
+			}
+			// console.log('Drizzlllleeee',drizzleState)
+    });
+
+  }
+
+  componentWillUnmount(){
+    this.unsubscribe()
   }
 
   render(){
@@ -68,20 +85,25 @@ class srcPayment extends Component{
       </div>
     )
   }
+
+  
   onSubmit = values=>{
     console.log('trnas',this.props)
     console.log('values',values)
     if(values.walletAddress && values.amount && values.purpose){
       const { drizzle } = this.props;
       const Token = drizzle.contracts.Token;
-      let createTransKey = Token.methods["createTransaction"].cacheSend(values.purpose,values.amount,values.walletAddress,{gas:500000})
+      let createTransKey = Token.methods["createTransaction"].cacheSend(values.purpose,values.amount,values.walletAddress,{gas:5000000})
       this.setState({createTransKey})
+      
       setTimeout(()=>{
-        if(this.props.drizzleState.transactionStack[createTransKey]){
+        // const s = drizzle.store.getState();
+        // console.log('sssss',this.state.drizzleState)
+        if(this.state.drizzleState.transactionStack[createTransKey]){
           const txHash = this.props.drizzleState.transactionStack[createTransKey];
           console.log('TransState',this.props.drizzleState)
           console.log('TransHash',txHash)
-          let saveReceiptKey = Token.methods["saveReceipt"].cacheSend(txHash,{gas:500000})
+          let saveReceiptKey = Token.methods["saveReceipt"].cacheSend(txHash,{gas:5000000})
           this.setState({saveReceiptKey});
         }
       },1000)

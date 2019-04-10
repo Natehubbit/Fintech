@@ -6,7 +6,7 @@ import { loadOrgData } from '../redux/actions'
 
 class orgDetails extends Component{
 
-  componentWillMount(dispatch){
+  componentWillMount(){
     this.props.loadOrgData()
     // console.log('component has mounted data',this.props);
   }

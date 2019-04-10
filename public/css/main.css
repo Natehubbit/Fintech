@@ -224,8 +224,9 @@ h5 {
 }
 
 .pending-transactions ul li:hover{
-	background:grey;
-	color:dodgerblue;
+	/* background:grey;
+	color:dodgerblue; */
+	cursor: pointer;
 }
 
 

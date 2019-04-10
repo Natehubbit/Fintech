@@ -9,7 +9,13 @@ import { stat } from 'fs';
 class transactionDetails extends Component{
 
   state = {
-    pendingKeys:[]
+    pendingKeys:[],
+    trans:{
+      executioner:null,
+      amount: null,
+      to:null,
+      purpose:null,
+    }
   }
 
   componentDidMount(){
@@ -21,6 +27,9 @@ class transactionDetails extends Component{
     return{}
   }
 
+  // componentWillUnmount(){
+  //   this.unsubscribe()
+  // }
 
   fetchData(){
     const {drizzle} = this.props
@@ -50,6 +59,7 @@ class transactionDetails extends Component{
 
   selectTrans(){
     let trans = this.displayData()
+    
     let b = null
     trans.map(a=>{
       if(a.txHash === this.props.paneId){
@@ -64,34 +74,36 @@ class transactionDetails extends Component{
   }
 
   render(){
+    let trans = {}
     // let trans = this.displayData()
     // console.log('PaneId',this.props.paneId)
-    let trans = {}
     // console.log('pppp',typeof('hjbg'))
     if(typeof(this.props.paneId)=== typeof('')){
       trans = this.selectTrans();
-      console.log('ttt',trans)
+      if(!trans)trans=this.state.trans
+      // console.log('ttt',trans)
     }
-    console.log('TRNAS',trans)
-    return (
-      <div className='transactionDetails'>
-          {console.log('TRANS',trans)}
-          <hr />
-          <h4 className='wallet-head'>Transaction Details</h4>
-          <Col offset-col-md={4}>
-              <ul className='center-block'>
-                  {/* <li className='tx'><strong >Tx.Hash:</strong> 0xslkdfwodshfslkjf8439u0r93hlksd</li> */}
-                  <li><strong className='to'>To:</strong>{trans.to}</li>
-                  <li><strong className='amount'>Amount:</strong> {trans.amount}UMC</li>
-                  <li><strong className='purpose'>Purpose:</strong> {trans.purpose}</li>
-                  {/* <li><strong className='gas'>Gas:</strong> 100 Wei</li> */}
-                  <li><strong className='signatures'>Signatures:</strong> Finance Officer, Treasurer, President </li>
-              </ul>
-          </Col>
-          
-      </div>
+      return(
+        <div className='transactionDetails'>
+            {/* {console.log("skldjf",trans.executioner)} */}
+            <hr />
+            <h4 className='wallet-head'>Transaction Details</h4>
+            <Col offset-col-md={4}>
+                <ul className='center-block'>
+                    <li className='from'><strong >From:</strong>{trans.executioner} </li>
+                    <li><strong className='to'>To:</strong>{trans.to}</li>
+                    <li><strong className='amount'>Amount:</strong> {trans.amount}UMC</li>
+                    <li><strong className='purpose'>Purpose:</strong> {trans.purpose}</li>
+                    {/* <li><strong className='gas'>Gas:</strong> 100 Wei</li> */}
+                    <li><strong className='signatures'>Signatures:</strong> Finance Officer, Treasurer, President </li>
+                </ul>
+            </Col>
+            
+        </div>
+      )
     
-    )  }
+    // )  
+  }
 }
 
 const mapStateToProps = state =>{

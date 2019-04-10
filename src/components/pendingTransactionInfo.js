@@ -6,11 +6,12 @@ import {drizzleConnect} from 'drizzle-react'
 
 class pendingTransactionInfo extends Component{
     state = {
-      pendingKeys:[]
+      pendingKeys:[],
+      pendingTrans:[]
     }
 
     componentDidMount() {
-      console.log('pending',this.props)
+      // console.log('pending',this.props)
       const {drizzle} = this.props
       const Token = drizzle.contracts.Token;
       let keys = [];
@@ -28,22 +29,30 @@ class pendingTransactionInfo extends Component{
     // console.log('d',Token)
     for(let i = 0; i<this.props.length; i++){
       let pendingTrans = Token.pendingTransactions[this.state.pendingKeys[i]];
+      // if(pendi)
       pendingTrans && pTrans.push(pendingTrans.value)
-      
+        // console.log('proper',pendingTrans)
+        if(pendingTrans && pendingTrans.value.id == 0){
+          pTrans.pop();
+        }
+        // this.setState({pendingTrans:[...pTrans]})
     }
+    
+
     
 
     let k = 0
     const pendingData = pTrans.map(a=>{
-    console.log('see',a)
+
+    // console.log('see',a)
     ++k
       return(
-        <ul className="list-group " value={a.txHash} key={k} onClick={e=>this.props.paneClicked(e,this.refs)}>
-          <li ref={a.txHash} className="list-group-item list-group-item-success">
+        <ul className="list-group " id={a.txHash} key={k} >
+          <li className="list-group-item list-group-item-success">
               {/* <p><strong className="tx">Tx.hash:</strong> <i>{a.txHash}</i></p> */}
-              <p ref={a.txHash}><strong className="from">From:</strong> <i>{a.executioner}</i></p>
-              <p ref={a.txHash}><strong className="to">To:</strong> <i>{a.to}</i></p>
-              <p ref={a.txHash}><strong>Amount:</strong> <i>{a.amount}UMC</i></p>
+              <p><strong className="from">From:</strong> <i>{a.executioner}</i></p>
+              <p ><strong className="to">To:</strong> <i>{a.to}</i></p>
+              <p><strong>Amount:</strong> <i>{a.amount}UMC</i></p>
           </li>
         </ul>
       )

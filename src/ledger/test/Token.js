@@ -55,39 +55,42 @@ contract('Token', accounts=>{
         //Creating a transaction
         return Token.deployed().then(i=>{
             instance = i
-            // instance.createTransaction('Wedding', 50, accounts[0]);
+            instance.createTransaction('Wedding', 50, accounts[0],{from:accounts[0]});
+            instance.createTransaction('Birthday', 5000, accounts[0],{from:accounts[0]});
             console.log(1)
-            return instance.createTransaction('Chop', 100, accounts[0]);
-        }).then(a=>{
-            console.log(2)
-            return instance.saveReceipt(a.tx,{from:accounts[0],gas:500000})
+            return instance.createTransaction('Chop', 100, accounts[0],{from:accounts[0]});
         })
+        // .then(a=>{
+        //     console.log(2)
+        //     return instance.saveReceipt(a.tx,{from:accounts[0],gas:500000})
+        // })
         .then(a=>{
             console.log(3)
-            console.log('index: ',a.logs[0].args.rec)
-        //     // console.log(a.logs[0].args.receipts)
-        //     instance.signTransaction(accounts[0],1,accounts[1])
-        //     instance.signTransaction(accounts[0],1,accounts[2])
-        //     instance.signTransaction(accounts[0],1,accounts[3])
-        //     return instance.approve(accounts[0],1,accounts[0])
-            return instance.pendingTransactions.call(0,{from:accounts[0],gas:500000})
+            // console.log('index: ',a.logs[0].args.rec)
+            instance.signTransaction(accounts[0],0,{from:accounts[1]})
+            console.log('s1')
+            instance.signTransaction(accounts[0],0,{from:accounts[2]})
+            console.log('s2')
+            instance.signTransaction(accounts[0],1,{from:accounts[1]})
+            console.log('s3')
+            instance.signTransaction(accounts[0],1,{from:accounts[2]})
+            console.log('s4')
+            instance.signTransaction(accounts[0],2,{from:accounts[1]})
+            console.log('s5')
+            return instance.signTransaction(accounts[0],2,{from:accounts[2]})
+            // // instance.signTransaction(accounts[0],0,{from:accounts[2]})
+            // // instance.signTransaction(accounts[0],0,{from:accounts[2]})
+            // // return instance.signTransaction(accounts[0],0,{from: accounts[1],gas:500000})
+            // console.log('s4')
+            // instance.signTransaction(accounts[0],2,{from:accounts[1]})
+            // console.log('s5')
+            // return instance.signTransaction(accounts[0],2,{from:accounts[2]})
+            console.log('s6')
+            // return instance.approve(instance.address,1,accounts[0])
+            // return instance.pendingTransactions.call(0,{from:accounts[0],gas:500000})
         }).then(a=>{
-            console.log('h',a)
-            // console.log(a.logs[0].args.pendingTrans);
-            // let ray = new Array(a.toNumber())
-            
-            // console.log('Length: ',a.toNumber());
-
-            // for(let i=0; i<a.toNumber(); i++){
-                
-            //     return instance.pendingTransactions.call(i)
-            //     .then(a=>{
-            //         console.log('hello')
-            //         console.log('Arr value',a)
-                        
-            //     })
-            // }
-            // return ray;
+            console.log(4)
+            console.log('Sign Detains',a.logs[0])
 
         }).then(a=>{
             // const arr = a.map(i=>{

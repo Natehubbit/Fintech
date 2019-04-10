@@ -10,6 +10,7 @@ import {
     SIGN_BUTTON_CLICKED,
     ADJUST_PENDING_PANEL,
     PANE_CLICKED,
+    TOGGLE_BUTTONS,
     // SRC_PAYMENT_SUBMIT,
 } from "../container/ui";
 import { 
@@ -28,13 +29,16 @@ import {
     INIT_DRIZZLE,
     // CONTRACT_JSON
 } from "../container/data";
+
+
 import Web3 from 'web3'
+import drizzle from '../../ledger/drizzle/options'
 import TruffleContract from 'truffle-contract'
 
 import ContractAbi from '../../ledger/build/contracts/Token.json'
 import pendingTransactions from "../../components/pendingTransactions";
 
-import drizzle from '../../ledger/drizzle/options'
+// state = {loading:true,drizzleState:null}
 
 export const signaturies = {
     treasurer:'0x37b806cF4f6eFFF4f452De0B4042340eC13aBDF7',
@@ -356,3 +360,33 @@ export const paneClicked = (e,r)=>dispatch=>{
         view:id
     })
 }
+
+export const changeSignBtnState=(address,index)=>dispatch=>{
+    console.log('Change Button State')
+    let id = index
+    // let index = index
+    let exec = address
+    // console.log('Targer: ',this.dataindex)
+    console.log('id:',id,'exec:',exec)
+    let init = false
+    dispatch({
+        type: TOGGLE_BUTTONS,
+        view: {id,exec,init}
+    })
+}
+
+// export const initDrizzle =()=>dispatch=>{
+//     this.unsubscribe = drizzle.store.subscribe(()=>{
+//         let loading = true
+//         const drizzleState = drizzle.store.getState();
+//         if(drizzleState.drizzleStatus.initialized){
+//             dispatch({
+//                 type: INIT_DRIZZLE,
+//                 drizzle:{
+//                     loading, 
+//                     drizzleState,
+//                 }
+//             })
+//         }
+//     })
+// }

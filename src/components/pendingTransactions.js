@@ -1,6 +1,6 @@
 import React,{Component} from 'react'
 import { signaturies } from '../redux/actions/'
-import { paneClicked } from '../redux/actions'
+import { paneClicked, changeSignBtnState } from '../redux/actions'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
@@ -19,6 +19,14 @@ class pendingTransactions extends Component{
           keys.push(key)
           this.setState({pendingKeys:[...keys]})
         }
+    }
+
+    signTransaction(e,a,b){
+        console.log('Signing Transaction........')
+        this.props.changeSignBtnState(e,a,b)
+        setTimeout(()=>{
+            console.log('pane state: ',this.props.signBtnState)
+        })
     }
 
     trimAddress(address){
@@ -51,33 +59,68 @@ class pendingTransactions extends Component{
         for(let i = 0; i<this.props.length; i++){
             let pendingTrans = Token.pendingTransactions[this.state.pendingKeys[i]];
             pendingTrans && pTrans.push(pendingTrans.value)
+           
         }
-        
-        let key = 0;
-        const pendingData = pTrans.map(a=>{
-            ++key
-            let from = null;
-            if(a.executioner == signaturies.treasurer)from = 'Treasurer';
-            if(a.executioner == signaturies.president)from = 'President';
-            if(a.executioner == signaturies.financeOfficer)from = 'Finance Officer';
-            let address = a.to
-            address = this.trimAddress(address)
-            return(
-                <fieldset id={a.txHash} key = {key} className='details pending-trans' onClick={e=>this.props.paneClicked(e)}>
-                    <div id={a.txHash} className='user-dp'>
-                        <img id={a.txHash} className='dp img-circle' src='./images/face.jpg' alt='dp' height='50px' width=''/>
-                    </div>
-                    <div id={a.txHash} className='text-details'>
-                        <ul id={a.txHash} className='pending-details'>
-                            <li id={a.txHash} >From:<span id={a.txHash}>{from}</span></li>
-                            <li id={a.txHash}>To:<span id={a.txHash}>{address}</span></li>
-                            <li id={a.txHash}>Amount:<span id={a.txHash}>{a.amount}</span></li>
-                        </ul>
-                    </div>
-                </fieldset>
-            )
-        })
 
+        let a = pTrans.filter(a=>a.id!=0);
+        let pendingData = null
+        let key = 0;
+        // if(a){
+            console.log('A',a)
+            pendingData = a.map(a=>{
+                ++key
+                let from = null;
+                if(a.executioner == signaturies.treasurer)from = 'Treasurer';
+                if(a.executioner == signaturies.president)from = 'President';
+                if(a.executioner == signaturies.financeOfficer)from = 'Finance Officer';
+                let address = a.to
+                // console.log('adresss: ', a.to)
+                address = this.trimAddress(address)
+                return(
+                    <fieldset dataindex={a.id-1} executioner={a.executioner} id={a.txHash} key = {key} className='details pending-trans' onClick={e=>{this.props.paneClicked(e);this.signTransaction(a.executioner,a.id-1)}}>
+                        <div dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='user-dp'>
+                            <img index={a.id-1} executioner={a.executioner} id={a.txHash} className='dp img-circle' src='./images/face.jpg' alt='dp' height='50px' width=''/>
+                        </div>
+                        <div dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='text-details'>
+                            <ul dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='pending-details'>
+                                <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash} >From:<span id={a.txHash}>{from}</span></li>
+                                <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash}>To:<span id={a.txHash}>{address}</span></li>
+                                <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash}>Amount:<span id={a.txHash}>{a.amount}</span></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                )
+            })
+    
+        // }
+        // else{
+        //     console.log('PTRANS')
+        //     pendingData = pTrans.map(a=>{
+        //         ++key
+        //         let from = null;
+        //         if(a.executioner == signaturies.treasurer)from = 'Treasurer';
+        //         if(a.executioner == signaturies.president)from = 'President';
+        //         if(a.executioner == signaturies.financeOfficer)from = 'Finance Officer';
+        //         let address = a.to
+        //         address = this.trimAddress(address)
+        //         return(
+        //             <fieldset dataindex={a.id-1} executioner={a.executioner} id={a.txHash} key = {key} className='details pending-trans' onClick={e=>{this.props.paneClicked(e);this.signTransaction(a.executioner,a.id-1)}}>
+        //                 <div dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='user-dp'>
+        //                     <img index={a.id-1} executioner={a.executioner} id={a.txHash} className='dp img-circle' src='./images/face.jpg' alt='dp' height='50px' width=''/>
+        //                 </div>
+        //                 <div dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='text-details'>
+        //                     <ul dataindex={a.id-1} executioner={a.executioner} id={a.txHash} className='pending-details'>
+        //                         <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash} >From:<span id={a.txHash}>{from}</span></li>
+        //                         <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash}>To:<span id={a.txHash}>{address}</span></li>
+        //                         <li dataindex={a.id-1} executioner={a.executioner} id={a.txHash}>Amount:<span id={a.txHash}>{a.amount}</span></li>
+        //                     </ul>
+        //                 </div>
+        //             </fieldset>
+        //         )
+        //     })
+    
+        // }
+        
         return (
             <div className=''>
                 {pendingData}
@@ -89,12 +132,12 @@ class pendingTransactions extends Component{
 
 const mapStateToProps = state =>{
     return{
-
+        signBtnState:state.SignBtnState,
     }
   }
   
   const mapDispatchToProps= dispatch=>{
-    return bindActionCreators({paneClicked},dispatch)
+    return bindActionCreators({paneClicked,changeSignBtnState},dispatch)
   }
 
 export default connect(mapStateToProps,mapDispatchToProps)(pendingTransactions)

@@ -43,7 +43,7 @@ class App extends Component {
 
 
 	render() {
-		console.log('drizzleState APP: ',this.state.loading)
+		// console.log('drizzleState APP: ',this.state.loading)
 		if((this.state.loading)) return 'loading';
 		// console.log(this.props)
 		return (

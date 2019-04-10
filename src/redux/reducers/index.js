@@ -28,6 +28,7 @@ import TruffleContract from './data/initTruffleContractReducer'
 import {drizzleReducers} from 'drizzle'
 import drizzle from '../reducers/data/drizzleReducer'
 import PaneClicked from './ui/paneClickedReducer'
+import SignBtnState from './ui/signBtnReducer'
 
 
 const RootReducer = combineReducers({
@@ -41,6 +42,7 @@ const RootReducer = combineReducers({
     // ...drizzleReducers,
     // drizzle,
     // PendingTransactionsPanel,
+    SignBtnState,
     PaneClicked,
     AdminLogin,
     AdminUsername,
