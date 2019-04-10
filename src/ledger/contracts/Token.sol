@@ -124,7 +124,7 @@ contract Token{
         sign[msg.sender].transaction.push(trans);
         ++sign[msg.sender].index;
         ++index;
-        pendingTransactions.push(trans);
+        // pendingTransactions.push(trans);
         // emit TransactionDet(sign[msg.sender].transaction[index].id,sign[msg.sender].transaction[0].no_signed,sign[msg.sender].transaction[0].signed[index], sign[msg.sender].transaction[0].executioner);
         return true;
     }
