@@ -91,6 +91,17 @@ h5 {
 	font-size: 35px;
 }
 
+.seeSigned i{
+	font-weight: 600;
+	color:#00a65a;
+	font-size: 35px;
+}
+.seePend i{
+	font-weight: 600;
+	color:#dd4b39;
+	font-size: 35px;
+}
+
 .actions button{
 	border-radius: 100%;
 }
@@ -100,13 +111,23 @@ h5 {
 	cursor:pointer;
 }
 
-.transaction{
+.transaction_success{
 	margin-top: 10px;
 	border: 1px solid rgb(216, 215, 215);
 	border-left-color: #00a65a;
 	border-top-color: #00a65a;
 	border-left-width: 5px;
 	border-right-color: #00a65a;
+	border-right-width: 5px;
+}
+
+.transaction_pending{
+	margin-top: 10px;
+	border: 1px solid rgb(216, 215, 215);
+	border-left-color: #dd4b39;
+	border-top-color: #dd4b39;
+	border-left-width: 5px;
+	border-right-color: #dd4b39;
 	border-right-width: 5px;
 }
 
@@ -129,7 +150,12 @@ h5 {
 
 .to{
 	color:#00a65a;
-	margin-left: 100px;
+	/* font-size: 15px; */
+	/* margin-left: 100px; */
+}
+
+.to i{
+	font-size: 50px;
 }
 
 .panel-body .to{
@@ -977,7 +1003,7 @@ a:hover {
     border-top-width:8px;
     border-top-color:#1d1d1d;
 	text-align:center;
-	margin-top:360px;
+	/* margin-top:360px; */
 
 }
 

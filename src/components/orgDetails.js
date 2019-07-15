@@ -24,9 +24,9 @@ class orgDetails extends Component{
           </Col>
           <Col md={9}>
               <ul>
-                  <li><strong className='name'>Name:</strong> {this.props.data.first_name+' '+this.props.data.last_name}</li>
-                  <li><strong className='address'>Address:</strong> {this.props.data.eth_address}</li>
-                  <li><strong className='contact'>Contact:</strong> {this.props.data.contact} </li>
+                  <li><strong className='name'>Name:</strong> {this.props.loadedPerson.first_name+' '+this.props.loadedPerson.last_name}</li>
+                  <li><strong className='address'>Address:</strong> {this.props.loadedPerson.eth_address}</li>
+                  <li><strong className='contact'>Contact:</strong> {this.props.loadedPerson.contact} </li>
               </ul>
           </Col>
       </div>
@@ -38,7 +38,8 @@ class orgDetails extends Component{
 
 const mapStateToprops = state =>{
   return{
-      data: state.Data
+      data: state.Data,
+      loadedPerson:state.LoadPerson,
   }
 }
 

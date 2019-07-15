@@ -7,13 +7,53 @@ import { connect } from 'react-redux'
 
 
 class reports extends Component {
-
-  signTransaction(){
+  state = {
+    totalSupplyKey: null,
+    balanceKey: null,
 
   }
 
+  componentDidMount(){
+    const { drizzle } = this.props;
+        const Token = drizzle.contracts.Token;
+    
+        // let nameDataKey = Token.methods["name"].cacheCall()
+        // this.setState({nameDataKey});
+    
+        let totalSupplyKey = Token.methods["totalSupply"].cacheCall()
+        this.setState({totalSupplyKey});
+
+        let balanceKey = Token.methods["contractBalance"].cacheCall()
+        this.setState({balanceKey});
+    
+        // console.log('Initial State ', this.props.signBtnState)
+        this.unsubscribe = drizzle.store.subscribe(() => {
+
+          // every time the store updates, grab the state from drizzle
+          const drizzleState = drizzle.store.getState();
+          // check to see if it's ready, if so, update local component state
+          if (drizzleState.drizzleStatus.initialized) {
+            this.setState({ drizzleState });
+          }
+			// console.log('Drizzlllleeee',drizzleState)
+        });
+  }
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
   render() {
-    console.log('Reports Page props: ',this.props.web3)
+
+    const {Token} = this.props.drizzleState.contracts;
+    const balance = Token.contractBalance[this.state.balanceKey]
+
+    const totalSupply = Token.totalSupply[this.state.totalSupplyKey]
+
+    
+    if(!totalSupply)return 'Loading.......!!!!';
+    if(!balance)return 'Loading.......!!!!';
+    console.log('b',balance,'t',totalSupply)
     return (
       <Grid>
         <Jumbotron>
@@ -22,20 +62,20 @@ class reports extends Component {
               <Panel.Body >
                 <Col md={4} style={{borderRight:'1px solid #41bbf4' }}>
                   <Thumbnail>
-                    <h4>50,000UMC</h4>
-                    <span>Initial Amount</span>
+                    <h4>{totalSupply.value}<strong>UMC</strong></h4>
+                    <span>Total Supply</span>
                   </Thumbnail>
                 </Col>
                 <Col md={4} style={{borderRight:'1px solid green' }}>
                   <Thumbnail>
-                    <h4>20,000UMC</h4>
-                    <span>Total Amount Spent</span>
+                    <h4>{totalSupply.value-balance.value}<strong>UMC</strong></h4>
+                    <span>Total Amount Disbursed</span>
                   </Thumbnail>
                 </Col>
                 <Col md={4}> 
                   <Thumbnail>
-                    <h4>30,000UMC</h4>
-                    <span>Net Amount</span>
+                    <h4>{balance.value}<strong>UMC</strong></h4>
+                    <span>Net Amount Remaining</span>
                   </Thumbnail>
                 </Col>
               </Panel.Body>

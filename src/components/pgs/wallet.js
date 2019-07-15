@@ -23,25 +23,27 @@ class wallet extends Component{
         signTransactionKey:null,
         Loading:true,
         drizzleState:null,
+        signedLengthKey:null,
     }
 
     componentDidMount() {
-        console.log('walet cdm props',this.props)
+        // console.log('walet cdm props',this.props)
         const { drizzle } = this.props;
         const Token = drizzle.contracts.Token;
     
-        let nameDataKey = Token.methods["name"].cacheCall()
-        this.setState({nameDataKey});
+        // let nameDataKey = Token.methods["name"].cacheCall()
+        // this.setState({nameDataKey});
     
         let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
         this.setState({pendingLengthKey});
+        // let signedLengthKey = Token.methods["signedTransactionsLength"].cacheCall()
+        // this.setState({signedLengthKey});
     
-        console.log('Initial State ', this.props.signBtnState)
+        // console.log('Initial State ', this.props.signBtnState)
         this.unsubscribe = drizzle.store.subscribe(() => {
 
 			// every time the store updates, grab the state from drizzle
 			const drizzleState = drizzle.store.getState();
-			// console.log('app cdm drizzleState: ',drizzleState)
 			// check to see if it's ready, if so, update local component state
 			if (drizzleState.drizzleStatus.initialized) {
 				this.setState({ loading: false, drizzleState });
@@ -76,13 +78,14 @@ class wallet extends Component{
     }
 
     onclick(e){
-       console.log(e)
+        console.log(e)
     }
 
     render(){
 
     const{ Token } = this.props.drizzleState.contracts;
     const pendingLength = Token.pendingTransactionsLength[this.state.pendingLengthKey];
+    const signedLength = Token.pendingTransactionsLength[this.state.signedLengthKey];
     
     if(!pendingLength)return 'Loading......';
 
@@ -98,7 +101,7 @@ class wallet extends Component{
                                     <div className='tab pending-tab pull-left' onClick={()=>this.props.togglePendingTab(this.props.toggleTab.pendingTab)} style = {this.pendingTabStyles(this.props)}>
                                         <h4>Pending Transactions</h4>
                                     </div>
-                                    <div className='tab signed-tab pull-right' onClick={()=>this.props.toggleSignedTab(this.props.toggleTab.pendingTab)} style = {this.signedTabStyles(this.props)} >
+                                    <div className='tab signed-tab pull-right' onClick={()=>{this.props.toggleSignedTab(this.props.toggleTab.pendingTab)}} style = {this.signedTabStyles(this.props)} >
                                         <h4>Signed Transactions</h4>
                                     </div>
                                 </div>
@@ -109,9 +112,10 @@ class wallet extends Component{
                                     transitionEnterTimeout={500}
                                     transitionLeaveTimeout={300}
                                 >
-                                    {
-                                        !this.props.toggleTab.pendingTab? <SignedTransactions/>:<PendingTransactions length = {pendingLength.value} drizzle = {this.props.drizzle} drizzleState = {this.props.drizzleState}/>
-                                    }
+                                    
+                                            {/* // <SignedTransactions length = {signedLength.value}  drizzle = {this.props.drizzle} drizzleState = {this.props.drizzleState}/>: */}
+                                            <PendingTransactions length = {pendingLength.value} tabState={this.props.toggleTab.pendingTab} drizzle = {this.props.drizzle} drizzleState = {this.props.drizzleState}/>
+                                    
                                 </ReactCSSTransitionGroup>
                             </Panel.Body>
                         </Panel>
@@ -147,7 +151,9 @@ class wallet extends Component{
     }
 
     signTransaction(a,b){
-        
+
+        this.props.changeSignBtnState(a,b)
+        console.log('signingState: ',this.props.signBtnState)
         const { drizzle } = this.props;
         const Token = drizzle.contracts.Token;
         
@@ -155,11 +161,6 @@ class wallet extends Component{
         this.setState({signTransactionKey});
         
         console.log('new state: ',this.props.signBtnState)
-        // this.props.changeSignBtnState('','')
-        setTimeout(()=>{
-            console.log('TransKey', signTransactionKey)
-            
-        })
 
     }
 }

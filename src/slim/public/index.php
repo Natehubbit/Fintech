@@ -12,5 +12,7 @@ $app = new \Slim\App;
     require_once('../app/api/adminLogin.php');
     require_once('../app/api/fetchAdmins.php');
     require_once('../app/api/fetchNameAddress.php');
+    require_once('../app/api/saveTrans.php');
+    require_once('../app/api/loadPerson.php');
 
 $app->run();

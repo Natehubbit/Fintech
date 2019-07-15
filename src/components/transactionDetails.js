@@ -5,6 +5,7 @@ import { paneClicked } from '../redux/actions'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { stat } from 'fs';
+import {signaturies} from '../redux/actions'
 
 class transactionDetails extends Component{
 
@@ -15,21 +16,19 @@ class transactionDetails extends Component{
       amount: null,
       to:null,
       purpose:null,
-    }
+      no_signed:null
+    },
+    drizzleState:this.props.drizzleState,
   }
 
   componentDidMount(){
-    console.log('TdetailsProps: ',this.props)
+    // console.log('TdetailsProps: ',this.props)
     this.fetchData();
   }
 
-  highlight(){
-    return{}
+  componentWillUnmount(){
+    this.unsubscribe()
   }
-
-  // componentWillUnmount(){
-  //   this.unsubscribe()
-  // }
 
   fetchData(){
     const {drizzle} = this.props
@@ -41,10 +40,17 @@ class transactionDetails extends Component{
       keys.push(key)
       this.setState({pendingKeys:[...keys]})
     }
+    
+    this.unsubscribe = drizzle.store.subscribe(() => {
+			const drizzleState = drizzle.store.getState();
+			if (drizzleState.drizzleStatus.initialized) {
+				this.setState({ drizzleState });
+			}
+    });
   }
   
   displayData(){
-    const{ Token } = this.props.drizzleState.contracts;
+    const{ Token } = this.state.drizzleState.contracts;
     // console.log('d',this.props.length)
     let trans = []
     for(let i = 0; i<this.props.length; i++){
@@ -68,20 +74,29 @@ class transactionDetails extends Component{
         return a;
       }
     })
-
-    console.log('detect',b)
+    console.log('selected ',b)
     return b;
   }
 
   render(){
     let trans = {}
-    // let trans = this.displayData()
-    // console.log('PaneId',this.props.paneId)
-    // console.log('pppp',typeof('hjbg'))
+
+    let s1 =''
+    let s2 = ''
+    let s3 = ''
+
     if(typeof(this.props.paneId)=== typeof('')){
       trans = this.selectTrans();
+      // Console.log(trans)
+      // if(trans){
+        // if(trans.signed1 && trans.signed1 == signaturies.treasurer)s1 = 'Treasurer';
+        // if(trans.signed1 && trans.signed2 == signaturies.president)s2 = 'President';
+        // if(trans.signed1 && trans.signed3 == signaturies.financeOfficer)s3 = 'Finance Officer';
+      // }
       if(!trans)trans=this.state.trans
       // console.log('ttt',trans)
+
+      
     }
       return(
         <div className='transactionDetails'>
@@ -91,11 +106,11 @@ class transactionDetails extends Component{
             <Col offset-col-md={4}>
                 <ul className='center-block'>
                     <li className='from'><strong >From:</strong>{trans.executioner} </li>
-                    <li><strong className='to'>To:</strong>{trans.to}</li>
+                    <li><strong className='to'>To:</strong>{this.props.loadPerson.first_name+' '+this.props.loadPerson.last_name}</li>
                     <li><strong className='amount'>Amount:</strong> {trans.amount}UMC</li>
                     <li><strong className='purpose'>Purpose:</strong> {trans.purpose}</li>
                     {/* <li><strong className='gas'>Gas:</strong> 100 Wei</li> */}
-                    <li><strong className='signatures'>Signatures:</strong> Finance Officer, Treasurer, President </li>
+                    {/* <li><strong className='signatures'>Signatures:</strong>{trans.no_signed}</li> */}
                 </ul>
             </Col>
             
@@ -108,7 +123,8 @@ class transactionDetails extends Component{
 
 const mapStateToProps = state =>{
   return{
-     paneId:state.PaneClicked
+      paneId:state.PaneClicked,
+      loadPerson:state.LoadPerson,
   }
 }
 

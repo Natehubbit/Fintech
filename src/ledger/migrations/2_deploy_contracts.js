@@ -7,5 +7,5 @@ const signaturies = {
 
 }
 module.exports = function(deployer) {
-  deployer.deploy(Token,5000000000,signaturies.treasurer,signaturies.financeOfficer,signaturies.president);
+  deployer.deploy(Token,5000000,signaturies.treasurer,signaturies.financeOfficer,signaturies.president);
 };

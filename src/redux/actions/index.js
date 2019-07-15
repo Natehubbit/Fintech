@@ -27,6 +27,8 @@ import {
     INIT_TRUFFLE_CONTRACT,
     SIGN_TRANSACTION,
     INIT_DRIZZLE,
+    SAVE_TRANSACTION,
+    LOAD_PERSON,
     // CONTRACT_JSON
 } from "../container/data";
 
@@ -375,18 +377,34 @@ export const changeSignBtnState=(address,index)=>dispatch=>{
     })
 }
 
-// export const initDrizzle =()=>dispatch=>{
-//     this.unsubscribe = drizzle.store.subscribe(()=>{
-//         let loading = true
-//         const drizzleState = drizzle.store.getState();
-//         if(drizzleState.drizzleStatus.initialized){
-//             dispatch({
-//                 type: INIT_DRIZZLE,
-//                 drizzle:{
-//                     loading, 
-//                     drizzleState,
-//                 }
-//             })
-//         }
-//     })
-// }
+export const saveTransactionDB=(to,txHash)=>dispatch=>{
+    // executioner = 'a'; txHash = 'b'
+    console.log('init DATA',to,txHash)
+    let details = {to,txHash}
+    fetch('http://fintech/saveTransaction',{
+        method:'POST',
+        body: JSON.stringify(details)
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        console.log('Data',data)
+        dispatch({
+            type: SAVE_TRANSACTION,
+            data
+        })
+    })
+}
+
+export const loadPerson=(to)=>dispatch=>{
+    console.log('HASH ',to)
+    fetch('http://fintech/loadPerson/'+to)
+    .then(res=>res.json())
+    .then(data=>{
+        // console.log('Data',data)
+        dispatch({
+            type: LOAD_PERSON,
+            data: data[0]
+        })
+    })
+
+}

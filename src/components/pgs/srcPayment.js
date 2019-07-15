@@ -1,6 +1,6 @@
 import React,{Component} from 'react'
 import { bindActionCreators } from 'redux';
-import { viewOrganizationDetailsSrc, viewSignedTransactions, viewPendingTransactions, createTransaction, drizzleInit, pen } from '../../redux/actions'
+import { viewOrganizationDetailsSrc, viewSignedTransactions, saveTransactionDB, viewPendingTransactions, createTransaction, drizzleInit, pen } from '../../redux/actions'
 import { connect } from 'react-redux'
 import SrcPaymentForm from '../srcPaymentForm'
 import PendingTransactions from '../pendingTransactionInfo'
@@ -17,20 +17,14 @@ class srcPayment extends Component{
     pendingLength:null,
     saveReceiptKey:null,
     newTransactions:[],
-    drizzleState:null,
+    drizzleState:this.props.drizzleState,
+    txHash:null,
   }
   componentDidMount() {
     
     console.log('src cdm props',this.props.drizzle)
     const { drizzle } = this.props;
     const Token = drizzle.contracts.Token;
-
-    let nameDataKey = Token.methods["name"].cacheCall()
-    this.setState({nameDataKey});
-
-    let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
-    this.setState({pendingLengthKey});
-
     this.unsubscribe = drizzle.store.subscribe(() => {
 
 			// every time the store updates, grab the state from drizzle
@@ -39,9 +33,11 @@ class srcPayment extends Component{
 			if (drizzleState.drizzleStatus.initialized) {
 				this.setState({ loading: false, drizzleState });
 			}
-			// console.log('Drizzlllleeee',drizzleState)
+			// console.log('Drizzlllleeee SRC: ',drizzleState)
     });
 
+    let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
+    this.setState({pendingLengthKey});
   }
 
   componentWillUnmount(){
@@ -49,7 +45,6 @@ class srcPayment extends Component{
   }
 
   render(){
-    // let d = this.props.state.contracts.Token.name;
     const{ Token } = this.props.drizzleState.contracts;
     const pendingLength = Token.pendingTransactionsLength[this.state.pendingLengthKey];
     
@@ -64,15 +59,13 @@ class srcPayment extends Component{
                 {/* <!-- <hr /> --> */}
                     
             <div className="panel-body pending-transactions" >
-              {
                 <PendingTransactions lengthKey={this.state.pendingLengthKey}  newTrans = {this.state.newTransactions} length = {pendingLength.value} drizzle = {this.props.drizzle} drizzleState= {this.props.drizzleState}/>
-              }
             </div>
             
 
-            <div className="panel-footer">
+            {/* <div className="panel-footer">
               <button className="btn btn-success center-block">Transactions</button>
-            </div>
+            </div> */}
           
           </div>
         </div>
@@ -80,7 +73,7 @@ class srcPayment extends Component{
           <div className="panel panel-default adminPayment">
             <SrcPaymentForm onSubmit={this.onSubmit} viewOrgDetails = {this.props.viewOrgDetails} />
           </div>
-          <button className="btn btn-info btn-lg center-block org" onClick={()=>this.props.viewOrganizationDetailsSrc(this.props.viewOrgDetails)} style={{width:'100%'}}>{!this.props.viewOrgDetails? 'Pay to individual':'Pay to Organisation'}</button>
+          {/* <button className="btn btn-info btn-lg center-block org" onClick={()=>this.props.viewOrganizationDetailsSrc(this.props.viewOrgDetails)} style={{width:'100%'}}>{!this.props.viewOrgDetails? 'Pay to individual':'Pay to Organisation'}</button> */}
         </div>
       </div>
     )
@@ -88,28 +81,29 @@ class srcPayment extends Component{
 
   
   onSubmit = values=>{
-    console.log('trnas',this.props)
-    console.log('values',values)
+    // console.log('trnas',this.props)
+    // console.log('values',values
     if(values.walletAddress && values.amount && values.purpose){
       const { drizzle } = this.props;
       const Token = drizzle.contracts.Token;
-      let createTransKey = Token.methods["createTransaction"].cacheSend(values.purpose,values.amount,values.walletAddress,{gas:5000000})
+      // let txHash = null;
+    
+      let s = drizzle.store.getState()
+      const createTransKey = Token.methods["createTransaction"].cacheSend(values.purpose,values.amount,values.walletAddress,{gas:5000000})
       this.setState({createTransKey})
-      
-      setTimeout(()=>{
-        // const s = drizzle.store.getState();
-        // console.log('sssss',this.state.drizzleState)
-        if(this.state.drizzleState.transactionStack[createTransKey]){
-          const txHash = this.props.drizzleState.transactionStack[createTransKey];
-          console.log('TransState',this.props.drizzleState)
-          console.log('TransHash',txHash)
-          let saveReceiptKey = Token.methods["saveReceipt"].cacheSend(txHash,{gas:5000000})
-          this.setState({saveReceiptKey});
-        }
-      },1000)
-      
+      s=drizzle.store.getState();
+      // console.log('Transaction key ',this.state.createTransKey)
+      const txHash = s.transactionStack[createTransKey]
+      this.setState({txHash});
+      console.log('sssssss',s)
+      const saveReceiptKey = Token.methods["saveReceipt"].cacheSend(txHash,{gas:5000000})
+      this.setState({saveReceiptKey});
+      // const txState = drizzle.store.getState();
+      this.props.saveTransactionDB(values.walletAddress,txHash)
+
       console.log('Transaction Created')
     }
+
   }
 
 
@@ -132,7 +126,7 @@ const mapStateToProps = state=>{
 }
 
 const mapDispatchToProps = dispatch =>{
-  return bindActionCreators({viewOrganizationDetailsSrc,createTransaction,viewSignedTransactions, viewPendingTransactions, drizzleInit},dispatch)
+  return bindActionCreators({viewOrganizationDetailsSrc,createTransaction, saveTransactionDB,viewSignedTransactions, viewPendingTransactions, drizzleInit},dispatch)
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(srcPayment)

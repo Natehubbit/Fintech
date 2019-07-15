@@ -29,6 +29,7 @@ import {drizzleReducers} from 'drizzle'
 import drizzle from '../reducers/data/drizzleReducer'
 import PaneClicked from './ui/paneClickedReducer'
 import SignBtnState from './ui/signBtnReducer'
+import LoadPerson from './data/loadPersonReducer'
 
 
 const RootReducer = combineReducers({
@@ -42,6 +43,7 @@ const RootReducer = combineReducers({
     // ...drizzleReducers,
     // drizzle,
     // PendingTransactionsPanel,
+    LoadPerson,
     SignBtnState,
     PaneClicked,
     AdminLogin,

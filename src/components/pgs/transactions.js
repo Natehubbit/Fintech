@@ -1,89 +1,81 @@
 
-import React from 'react'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import React,{Component} from 'react'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { toggleSee,toggleSeeMore,toggleCommentBox } from '../../redux/actions'
+import ViewTransactions from '../viewTransactions'
 
-const transactions = (props) => {
-    console.log('props for transaction',props);
-    return (
-        <div className="container">
-            <div className="col-lg-12 col-sm-12 col-md-12">
-                <div className="jumbotron">
-                    <header className="transactions-header">
-                        <h4>Transactions</h4>
-                    </header>
-                    {/* <!-- <hr /> --> */}
-                        
-                    <fieldset className="transaction" data-id ='1' >
-                        <div className="transaction-content">
-                            <div className="transaction-header">
-                                <span >
-                                    <strong className="from"> From: </strong> <i> x0456....22e</i>
-                                    <strong className="to"> To: </strong> <i> x07de....adf</i>								
-                                </span>
-                            </div>  
-                            {
-                                props.transactionUi.seeMore &&
-                                (<ReactCSSTransitionGroup
-                                    transitionName='example'
-                                    transitionEnterTimeout={500}
-                                    transitionLeaveTimeout={300}
-                                >
-                            
-                                <div className="transaction-body">
-                                    <p className="tx" ><strong>Tx. Hash: </strong><i> 0xhfosdjfs0r0we9r8098wierjpfsd798ewru</i></p>
-                                    <p><strong className='amount'>Amount:</strong>  <i>100UMC</i></p>
-                                    <p><strong className='gas'>Gas:</strong>  <i>2.35 GWEI</i></p>
-                                    <p><strong className='purpose'>Purpose:</strong>  <i>Donation</i></p>
+class transactions extends Component{
 
-                                    {
-                                        !props.commentBox && 
-                                        (<ReactCSSTransitionGroup
-                                            transitionName='example'
-                                            transitionEnterTimeout={500}
-                                            transitionLeaveTimeout={300}    
-                                        >
-                                            <span className="comment-section">
-                                                <p>
-                                                    <textarea className="comment-text center-block"></textarea>
-                                                </p>
-                                                <p className="actions">
-                                                    <button className="btn btn-success btn-xs confirm" onClick = {()=>props.toggleCommentBox(props.commentBox)}><i className="fa fa-check"></i></button>
-                                                    <button className="btn btn-danger btn-xs cls" onClick = {()=>props.toggleCommentBox(props.commentBox)}><i className="fa fa-times"></i></button>
-                                                </p>
-                                            </span>
-                                        </ReactCSSTransitionGroup>)
-                                    }
-                                    <p>
-                                        <button className="btn btn-info btn-xs comment-btn" onClick = {()=>props.toggleCommentBox(props.commentBox)}>Comment</button>
-                                    </p>
-                                </div>
-                            </ReactCSSTransitionGroup>)
-                            }
-                            <div className="transaction-footer">
-                                <span className='see' onClick = {()=>props.toggleSee(props.transactionUi.see,props.transactionUi.seeMore)} ><i className={props.transactionUi.see} ></i></span>
-                            </div>
-                        </div>
-                    </fieldset>
-                    
-                        
+    state = {
+        pendingLengthKey:null,
+        pendingLength:null,
+        saveReceiptKey:null,
+        signTransactionKey:null,
+        Loading:true,
+        drizzleState:null,
+        signedLengthKey:null,
+    }
+
+    componentDidMount(){
+
+        const { drizzle } = this.props;
+        const Token = drizzle.contracts.Token;
+
+        let pendingLengthKey = Token.methods["pendingTransactionsLength"].cacheCall()
+        this.setState({pendingLengthKey});
+
+        let signedLengthKey = Token.methods["signedTransactionsLength"].cacheCall()
+        this.setState({signedLengthKey});
+
+
+        this.unsubscribe = drizzle.store.subscribe(() => {
+			// every time the store updates, grab the state from drizzle
+			const drizzleState = drizzle.store.getState();
+			// check to see if it's ready, if so, update local component state
+			if (drizzleState.drizzleStatus.initialized) {
+				this.setState({ drizzleState });
+            }
+            // console.log('ddzz',this.state.drizzleState)
+        })
+    }
+    
+
+    componentWillUnmount(){
+        this.unsubscribe()
+    }
+
+    render(){
+
+        const{ Token } = this.props.drizzleState.contracts;
+        const pendingLength = Token.pendingTransactionsLength[this.state.pendingLengthKey];
+        const signedLength = Token.pendingTransactionsLength[this.state.signedLengthKey];
+            
+
+        if(!signedLength && !pendingLength)return 'Loading......';
+        return (
+            <div className="container">
+                <div className="col-lg-12 col-sm-12 col-md-12">
+                    <div className="jumbotron">
+                        <header className="transactions-header">
+                            <h4>Transactions</h4>
+                        </header>
+                        <ViewTransactions drizzle={this.props.drizzle} drizzleState={this.props.drizzleState} pendingLength ={pendingLength} signedLength = {this.state.signedLength}/>
+                    </div>
                 </div>
             </div>
-        </div>
-    )
+        )
+    }
+    
 }
 
 const mapStateToProps = state=>{
     return{
-        transactionUi: state.TransactionUi,
-        commentBox: state.CommentBoxUi
+        
     }
 }
 
 const mapDispatchToProps = dispatch =>{
-    return bindActionCreators({ toggleSee, toggleSeeMore, toggleCommentBox }, dispatch)
+    return bindActionCreators({}, dispatch)
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(transactions) 
+export default connect(mapStateToProps,null)(transactions) 

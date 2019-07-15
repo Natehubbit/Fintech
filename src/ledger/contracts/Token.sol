@@ -14,7 +14,9 @@ contract Token{
     struct transactions{
         uint256 id;
         uint no_signed;
-        address [] signed;
+        address signed1;
+        address signed2;
+        address signed3;
         address executioner;
         string purpose;
         uint256 amount;
@@ -32,7 +34,7 @@ contract Token{
     uint public no_signed=0;
     address public owner;
     uint public execs_signed = 0;
-    uint256 public contractBalance;
+    uint public contractBalance;
     uint index = 0;
     address [] public signaturesAuthorized;
     transactions [] public signedTransactions;
@@ -46,7 +48,7 @@ contract Token{
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
     event SignaturiesCreated(address treasurer,address financeOfficer, address president);
     event AddSignaturies(address[] signaturies);
-    event ApproveTransaction(address _contractAddress, uint id, uint no_signed, address executioner, address [] sig);
+    // event ApproveTransaction(address address(this), uint id, uint no_signed, address executioner, address [] sig);
     event TransferFrom(address _to, uint256 _value);
     event Data(bool a);
     event TransactionDet(uint id, uint no_signed, address signed, address executioner);
@@ -68,7 +70,7 @@ contract Token{
 
     constructor(uint256 _initialSupply, address treasurer, address financeOfficer, address president) public {
         owner = msg.sender;
-        // balanceOf[owner] = _initialSupply;
+        balanceOf[owner] = 2000;
         totalSupply = _initialSupply;
         contractBalance = _initialSupply;
         assignSignaturies(treasurer,financeOfficer,president);
@@ -102,12 +104,12 @@ contract Token{
     }
 
     // transfer from contract address to specified address
-    function transferFromContract(address _to, uint256 _value) public returns (bool success){
+    function transferFrom(address _to, uint256 _value) public returns (bool success){
 
         require(contractBalance >= _value);
         contractBalance -= _value;
         balanceOf[_to] += _value;
-        // emit TransferFrom(_to,_value);
+        emit TransferFrom(_to,_value);
         return true; 
     }
     
@@ -115,7 +117,7 @@ contract Token{
         // trans = transactions(sign[msg.sender].index,0,new address[](no_signaturies),msg.sender,"",0,0x0000000000000000000000000000000000000000,"");
         trans.id = sign[msg.sender].index+1;
         trans.no_signed=1;
-        trans.signed.push(msg.sender);
+        trans.signed1=msg.sender;
         trans.executioner = msg.sender;
         trans.purpose = purpose;
         trans.amount = amount;
@@ -132,29 +134,36 @@ contract Token{
 event Ts(uint t);
 event Ac(uint a);
     function signTransaction(address executioner, uint id) public signersOnly returns (bool success){
+        require(executioner != msg.sender );
+        require(sign[executioner].transaction[id].signed1!=msg.sender);
+        require(sign[executioner].transaction[id].signed2!=msg.sender);
+
         // emit Ts(sign[executioner].transaction[id].no_signed);
-        for(uint i=0; i<sign[executioner].transaction[id].no_signed; i++){
-            require(sign[executioner].transaction[id].signed[i] != msg.sender );
-        }
 
         ++sign[executioner].transaction[id].no_signed;
-        sign[executioner].transaction[id].signed.push(msg.sender);
+        if(sign[executioner].transaction[id].no_signed==1){
+            sign[executioner].transaction[id].signed2=msg.sender;
+        }else{
+            sign[executioner].transaction[id].signed2=msg.sender;
+        }
+        
         
         // emit Ts(sign[executioner].transaction[id].no_signed);
         if(sign[executioner].transaction[id].no_signed == 3){
             emit Ts(sign[executioner].transaction[id].no_signed);
+            approve(executioner,id);
             signedTransactions.push(sign[executioner].transaction[id]);
             delete pendingTransactions[sign[executioner].transaction[id].index];
         }
         return true;
     }
 
-    function approve (address _contractAddress, uint transId, address executioner) public signersOnly returns (bool success){
+    function approve (address executioner, uint transId) private signersOnly{
         require(sign[executioner].transaction[transId].no_signed == no_signaturies);
-        transferFromContract(sign[executioner].transaction[transId].to, sign[executioner].transaction[transId].amount);
-        emit ApproveTransaction(_contractAddress, transId, sign[executioner].transaction[transId].no_signed, executioner,signaturesAuthorized);
+        transferFrom(sign[executioner].transaction[transId].to, sign[executioner].transaction[transId].amount);
+        // emit ApproveTransaction(address(this), transId, sign[executioner].transaction[transId].no_signed, executioner,signaturesAuthorized);
         // emit TransferDet(transId, sign[executioner].transaction[transId].no_signed, executioner)
-        return false;
+        // return false;
     }
 
     // function allowance(address _owner, address _spender) public view returns (uint256 remaining){

@@ -2,16 +2,18 @@ import React, {Component} from 'react'
 import {ContractData} from 'drizzle-react-components'
 import { map } from 'highcharts';
 import {drizzleConnect} from 'drizzle-react'
+import {loadPerson} from '../redux/actions'
+import {bindActionCreators} from 'redux'
+import {connect} from 'react-redux'
 
 
 class pendingTransactionInfo extends Component{
     state = {
-      pendingKeys:[],
-      pendingTrans:[]
+      pendingKeys:[]
     }
 
     componentDidMount() {
-      // console.log('pending',this.props)
+      console.log('pending',this.props)
       const {drizzle} = this.props
       const Token = drizzle.contracts.Token;
       let keys = [];
@@ -23,27 +25,24 @@ class pendingTransactionInfo extends Component{
       }
     }
 
+    loadPerson(e){
+      let hash =e.target.id
+      this.props.loadPerson(hash);
+    }
+
   render(){
     let pTrans = []
     const{ Token } = this.props.drizzleState.contracts;
     // console.log('d',Token)
     for(let i = 0; i<this.props.length; i++){
       let pendingTrans = Token.pendingTransactions[this.state.pendingKeys[i]];
-      // if(pendi)
       pendingTrans && pTrans.push(pendingTrans.value)
-        // console.log('proper',pendingTrans)
-        if(pendingTrans && pendingTrans.value.id == 0){
-          pTrans.pop();
-        }
-        // this.setState({pendingTrans:[...pTrans]})
+      
     }
     
-
-    
-
+    let a = pTrans.filter(a=>a.id!=0);
     let k = 0
-    const pendingData = pTrans.map(a=>{
-
+    const pendingData = a.map(a=>{
     // console.log('see',a)
     ++k
       return(
@@ -53,6 +52,7 @@ class pendingTransactionInfo extends Component{
               <p><strong className="from">From:</strong> <i>{a.executioner}</i></p>
               <p ><strong className="to">To:</strong> <i>{a.to}</i></p>
               <p><strong>Amount:</strong> <i>{a.amount}UMC</i></p>
+              <p><strong>Purpose:</strong> <i>{a.purpose}</i></p>
           </li>
         </ul>
       )
@@ -71,23 +71,15 @@ class pendingTransactionInfo extends Component{
 }
 
 const mapStateToProps = state=>{
-  // console.log('signed: ',state)
-  
   return {
-    ...state.contracts
-    // viewOrgDetails: state.SrcUi,
-    // web3: state.InitWeb3,
-    // truffleContract:state.TruffleContract,
-    // receipt:state.CreateTransaction,
-    // signedTransactions: state.ViewSignedTransactions,
-    // pendingTransactions: state.ViewPendingTransactions,
+    loadedPerson:state.LoadPerson
   }
 }
 
-// const mapDispatchToProps = dispatch =>{
-//   return bindActionCreators({viewOrganizationDetailsSrc,createTransaction,viewSignedTransactions, viewPendingTransactions},dispatch)
-// }
+const mapDispatchToProps = dispatch =>{
+  return bindActionCreators({loadPerson},dispatch)
+}
 
 
 
-export default pendingTransactionInfo
+export default connect(mapStateToProps,mapDispatchToProps)(pendingTransactionInfo);
