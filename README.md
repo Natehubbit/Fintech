@@ -1,8 +1,8 @@
 **Description**
-An institutional Open Ledger Technology based on the Ethereum blockchain to facilitate transparency in transactions.
+- An institutional Open Ledger Technology based on the Ethereum blockchain to facilitate transparency in transactions.
 
 **How to install**
-npm install
+- npm install
 
 **Dependencies**
 - Truffle suite
