@@ -5,8 +5,8 @@ An institutional Open Ledger Technology based on the Ethereum blockchain to faci
 npm install
 
 **Dependencies**
--Truffle suite
--Metamask
+- Truffle suite
+- Metamask
 
 **How to run**
 - Install truffle suite and start up the the truffle blockchain testnet.
